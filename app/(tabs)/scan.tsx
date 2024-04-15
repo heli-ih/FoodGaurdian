@@ -17,7 +17,7 @@ import * as FileSystem from "expo-file-system";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const API_KEY = "AIzaSyDqGwIdbdpdhRvwGxAAQMXre6F5unoSs2c";
+// put api key from .env
 import { db } from "../firebase/index";
 import { ref, set, push, onValue } from "firebase/database";
 import { Dropdown } from "react-native-element-dropdown";
