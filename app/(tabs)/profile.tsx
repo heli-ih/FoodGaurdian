@@ -57,7 +57,7 @@ export default function ProfileScreen() {
         <View className="bg-themeDark w-screen h-full " style={styles.round}>
           {/* Score */}
           <View className="flex justify-between items-center my-7">
-            <Text className="font-bold text-xl text-themeLight">Score</Text>
+            <Text className="font-bold text-xl text-themeLight">Score:</Text>
             <Text
               className={
                 points
@@ -71,16 +71,41 @@ export default function ProfileScreen() {
 
           <View className=" bg-white h-full p-10" style={styles.round}>
             {/* Badge Collection */}
-            <View>
-              <Text className="text-2xl font-semibold">Badge Collection</Text>
-              <View style={styles.container}>
-                {badges.map((badge, index) => (
-                  <View key={index} className=" w-2/5  items-center ">
-                    {/* Badge */}
+            {points >= 1000 ? (
+              <View>
+                <Text className="text-2xl font-semibold">Badge Collection</Text>
+                <View style={styles.container}>
+                  {badges.map((badge, index) => (
+                    <View key={index} className=" w-2/5  items-center ">
+                      {/* Badge */}
+                      <View className="flex justify-center mb-10 mt-10 h-14">
+                        <Image
+                          source={{ uri: badge }}
+                          style={{ width: 130, height: 130 }}
+                        />
+                      </View>
+                      {/* Share */}
+                      <View className="flex flex-row w-full items-center justify-end ">
+                        <FontAwesome
+                          name="share-square-o"
+                          size={16}
+                          solid
+                          color={"#0A1816"}
+                          onPress={() => handleShare(badge)}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ) : 500 <= points && points < 1000 ? (
+              <View>
+                <Text className="text-2xl font-semibold">Badge Collection</Text>
+                <View style={styles.container}>
+                  <View className=" w-2/5  items-center ">
                     <View className="flex justify-center mb-10 mt-10 h-14">
-                      {/* <Text>{badge}</Text> */}
                       <Image
-                        source={{ uri: badge }}
+                        source={{ uri: badges[0] }}
                         style={{ width: 130, height: 130 }}
                       />
                     </View>
@@ -91,13 +116,14 @@ export default function ProfileScreen() {
                         size={16}
                         solid
                         color={"#0A1816"}
-                        onPress={() => handleShare(badge)}
+                        onPress={() => handleShare(badges[0])}
                       />
                     </View>
                   </View>
-                ))}
+                </View>
               </View>
-            </View>
+            ) : null}
+
             {/* QR Code */}
             <View>
               <Text className="text-2xl font-semibold mb-6">QR Code</Text>
@@ -106,13 +132,6 @@ export default function ProfileScreen() {
                   <Text className="font-bold text-2xl">Active</Text>
 
                   <View className="p-10">
-                    <FontAwesome
-                      name="check"
-                      size={24}
-                      solid
-                      color={"#0A1816"}
-                      onPress={goQRscan}
-                    />
                     <QRCode
                       value="Collect Points"
                       logo={{ uri: base64Logo }}
@@ -120,6 +139,15 @@ export default function ProfileScreen() {
                     />
                   </View>
                   <Text className="font-bold text-lg">6111000015735221</Text>
+                </View>
+                <View className="mt-0 flex flex-row justify-end w-full">
+                  <FontAwesome
+                    name="circle"
+                    size={24}
+                    solid
+                    color={"#D4D4D4"}
+                    onPress={goQRscan}
+                  />
                 </View>
               </View>
             </View>

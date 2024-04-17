@@ -10,9 +10,11 @@ import {
 import { CameraView, Camera } from "expo-camera/next";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { Product } from "./(tabs)/_layout";
 
 export default function QRscan() {
   const [hasPermission, setHasPermission] = useState(null);
+  const [productData, setProductData] = useState<Product>();
   const [scanned, setScanned] = useState(false);
   const navigation = useNavigation();
 
@@ -27,10 +29,29 @@ export default function QRscan() {
     };
     getCameraPermissions();
   }, []);
-
+  let EntireResponse;
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
 
+    const proxyurl = "https://cors-anywhere.herokuapp.com/"; // Use a proxy to avoid CORS error
+    const api_key = "elylitruvgtbrhgc2s1cf3wqexxq0h";
+    const url =
+      proxyurl +
+      `https://api.barcodelookup.com/v3/products?barcode=${data}&formatted=y&key=` +
+      api_key;
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setProductData({ ...productData, productName: data.products[0].title });
+        EntireResponse = JSON.stringify(data, null, "<br/>");
+      })
+      .catch((err) => {
+        throw err;
+      });
+
+    console.log("hi");
+    console.log(data.products[0].title);
     Alert.alert(
       "Successful",
       `Data is ${data}`,
@@ -39,8 +60,8 @@ export default function QRscan() {
         {
           text: "OK",
           onPress: () => {
-            console.log({ data });
-            navigation.navigate("createItem");
+            console.log({ data }, { productData }, { EntireResponse });
+            // navigation.navigate("createItem");
           },
         },
       ]

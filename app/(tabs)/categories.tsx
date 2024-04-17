@@ -29,7 +29,7 @@ export default function MapScreen() {
   const navigation = useNavigation();
 
   // const goHome = () => {
-  //   navigation.navigate("home");
+  //   navigation.navigate("index");
   // };
 
   const goCreateCategory = () => {
@@ -67,6 +67,24 @@ export default function MapScreen() {
     } catch (error) {
       console.error("Error deleting category:", error);
     }
+  };
+  const handleConfirmDelete = (cat: Category) => {
+    Alert.alert(
+      "Category Deletion",
+      `Are you sure you want to delete ${cat.value} caregory?`,
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: () => {
+            handleDelete(cat.id);
+            console.log("confirmd!");
+          },
+        },
+      ]
+    );
   };
 
   const handleEdit = (id) => {
@@ -116,7 +134,7 @@ export default function MapScreen() {
                   name="delete-outline"
                   size={22}
                   color="black"
-                  onPress={() => handleDelete(cat.id)}
+                  onPress={() => handleConfirmDelete(cat)}
                 />
               </View>
               {/* Title */}

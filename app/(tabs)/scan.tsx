@@ -236,7 +236,7 @@ export default function ScanScreen() {
 
   return (
     <ScrollView>
-      <View className="p-10 h-full mt-16">
+      <View className="p-10 h-full mt-16 ">
         <Text className="text-3xl font-bold ">Create Item</Text>
         {/* Camera */}
         <View className=" flex-1 h-96 ">
@@ -268,7 +268,7 @@ export default function ScanScreen() {
         </View>
         {/* Details */}
         {images.length ? (
-          <View className="items-end">
+          <View className="items-end mb-20">
             <View className="bg-theme w-32 rounded-3xl">
               <Button
                 onPress={goCreateItem}

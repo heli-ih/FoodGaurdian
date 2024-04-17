@@ -49,14 +49,14 @@ export default function MapScreen() {
     try {
       Alert.alert("Category Confirmation", `Name: ${newCat.value}`, [
         {
+          text: "Edit",
+        },
+        {
           text: "Confirm",
           onPress: () => {
             handleCreate();
             console.log("confirmd!"), navigation.navigate("categories");
           },
-        },
-        {
-          text: "Edit",
         },
       ]);
     } catch (error) {
@@ -65,7 +65,7 @@ export default function MapScreen() {
   };
 
   const goHome = () => {
-    navigation.navigate("home");
+    navigation.navigate("index");
   };
 
   const goCategories = () => {

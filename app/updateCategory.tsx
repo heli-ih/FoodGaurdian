@@ -59,14 +59,14 @@ export default function MapScreen() {
       try {
         Alert.alert("Category Confirmation", `Name: ${newCat.value}`, [
           {
+            text: "Edit",
+          },
+          {
             text: "Confirm",
             onPress: () => {
               handleUpdate();
               console.log("confirmd!"), navigation.navigate("categories");
             },
-          },
-          {
-            text: "Edit",
           },
         ]);
       } catch (error) {
@@ -84,7 +84,7 @@ export default function MapScreen() {
         onPress={goCategories}
       />
       <ScrollView className="p-10 h-full mb-32">
-        <Text className="text-3xl font-bold mb-10">Create Category</Text>
+        <Text className="text-3xl font-bold mb-10">Modify Category</Text>
 
         <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
           {/* Name */}
@@ -99,11 +99,11 @@ export default function MapScreen() {
               value={newCat ? newCat.value : ""}
             />
           </View>
-          {/* Create  */}
+          {/* Save  */}
           <View className="items-end  mt-16">
             <View className="bg-theme w-32 rounded-3xl">
               <Button
-                title="Update"
+                title="Save"
                 onPress={handleConfirmation}
                 color="white"
               ></Button>

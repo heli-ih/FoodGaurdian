@@ -101,14 +101,14 @@ export default function CreateItem() {
         `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}`,
         [
           {
+            text: "Edit",
+          },
+          {
             text: "Confirm",
             onPress: () => {
               handleCreate(productData);
-              console.log("confirmd!"), navigation.navigate("home");
+              console.log("confirmd!"), navigation.navigate("index");
             },
-          },
-          {
-            text: "Edit",
           },
         ]
       );
@@ -118,7 +118,7 @@ export default function CreateItem() {
   };
 
   const goHome = () => {
-    navigation.navigate("home");
+    navigation.navigate("index");
   };
 
   const goScan = () => {
@@ -170,7 +170,7 @@ export default function CreateItem() {
         className="ml-9 mt-20"
         onPress={goHome}
       />
-      <ScrollView className="p-10 mb-32">
+      <ScrollView className="p-10 mb-28">
         <View className="flex flex-row justify-between w-full ">
           <Text className="text-3xl font-bold mb-10">Create Item</Text>
           <View className="flex flex-row justify-between pt-2 w-16">

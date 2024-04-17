@@ -30,21 +30,23 @@ const checkExpiry = (expiryDate: string) => {
   let color;
   let percentage;
 
-  if (diffInDays > 10) {
-    // Green zone: diffInDays > 10
-    color = "#32CD32";
-    // percentage = (diffInDays - 10) / 4.5;
-    percentage = 30;
-  } else if (diffInDays > 5) {
-    // Yellow zone: 5 < diffInDays <= 10
-    color = "#FFD700";
-    // percentage = ((diffInDays - 5) / (10 - 5)) * 33.3 + 33.3;
-    percentage = 50;
-  } else {
-    // Red zone: diffInDays <= 5
-    color = "#FF0000";
-    // percentage = (diffInDays / 5) * 33.3 + 66.6;
-    percentage = 80;
+  if (expiryDate) {
+    if (diffInDays > 10) {
+      // Green zone: diffInDays > 10
+      color = "#32CD32";
+      // percentage = (diffInDays - 10) / 4.5;
+      percentage = 30;
+    } else if (diffInDays > 5) {
+      // Yellow zone: 5 < diffInDays <= 10
+      color = "#FFD700";
+      // percentage = ((diffInDays - 5) / (10 - 5)) * 33.3 + 33.3;
+      percentage = 50;
+    } else {
+      // Red zone: diffInDays <= 5
+      color = "#FF0000";
+      // percentage = (diffInDays / 5) * 33.3 + 66.6;
+      percentage = 80;
+    }
   }
 
   return { color, percentage, diffInDays };
@@ -126,6 +128,24 @@ const HomeScreen: React.FC = () => {
       console.error("Error deleting record:", error);
     }
   };
+  const handleConfirmDelete = (item: Product) => {
+    Alert.alert(
+      "Item Deletion",
+      `Are you sure you want to delete ${item.productName}?`,
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: () => {
+            handleDelete(item.id);
+            console.log("confirmd!");
+          },
+        },
+      ]
+    );
+  };
 
   const handleEdit = (id) => {
     const selectedProduct = products.filter((p) => p.id === id);
@@ -151,11 +171,11 @@ const HomeScreen: React.FC = () => {
           />
         </View>
       </View>
-      <View>
+      <View className="mb-20">
         {products.map((item: Product) => {
           const { color, percentage } = checkExpiry(item.expiryDate);
           return (
-            <View className="mb-9  border-2 rounded-md  relative" key={item.id}>
+            <View className="mb-6  border-2 rounded-md  relative" key={item.id}>
               {/* Shadow View */}
               <View
                 className="absolute left-0 top-0 bottom-0  opacity-25 rounded-l-md "
@@ -206,7 +226,7 @@ const HomeScreen: React.FC = () => {
                     name="delete-outline"
                     size={22}
                     color="black"
-                    onPress={() => handleDelete(item.id)}
+                    onPress={() => handleConfirmDelete(item)}
                   />
                 </View>
               </View>

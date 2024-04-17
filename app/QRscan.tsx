@@ -17,9 +17,7 @@ export default function QRscan() {
   const navigation = useNavigation();
 
   const goProfile = () => {
-    navigation.navigate("profile", {
-      points: 1380,
-    });
+    navigation.navigate("profile");
   };
 
   useEffect(() => {
@@ -35,7 +33,7 @@ export default function QRscan() {
 
     Alert.alert(
       "Successful",
-      'Account with id = "6111000015735221" has been rewarded with 1380 points!',
+      'Account with id = "6111000015735221" has been rewarded with 578 points!',
 
       [
         {
@@ -45,7 +43,7 @@ export default function QRscan() {
               'Account with id = "6111000015735221" has been rewarded with 1380 points!'
             );
             navigation.navigate("profile", {
-              points: 1380,
+              points: 578,
             });
           },
         },

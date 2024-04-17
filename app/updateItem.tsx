@@ -42,7 +42,7 @@ export default function UpdateItem() {
   }, [route.params]);
 
   const goHome = () => {
-    navigation.navigate("home");
+    navigation.navigate("index");
   };
 
   const goCreateCategory = () => {
@@ -77,14 +77,14 @@ export default function UpdateItem() {
           `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}`,
           [
             {
+              text: "Edit",
+            },
+            {
               text: "Confirm",
               onPress: () => {
                 handleUpdate();
-                console.log("confirmd!"), navigation.navigate("home");
+                console.log("confirmd!"), navigation.navigate("index");
               },
-            },
-            {
-              text: "Edit",
             },
           ]
         );
@@ -125,7 +125,7 @@ export default function UpdateItem() {
         onPress={goHome}
       />
       <ScrollView className="p-10 mb-32">
-        <Text className="text-3xl font-bold mb-10">Update Item</Text>
+        <Text className="text-3xl font-bold mb-10">Modify Item</Text>
 
         <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
           {/* Name */}
@@ -218,11 +218,11 @@ export default function UpdateItem() {
           </View>
         </View>
 
-        {/* Update  */}
+        {/* Save  */}
         <View className="items-end mb-32 mt-16">
           <View className="bg-theme w-32 rounded-3xl">
             <Button
-              title="Update"
+              title="Save"
               onPress={() => {
                 handleConfirmation();
               }}
