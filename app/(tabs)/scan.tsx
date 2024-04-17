@@ -58,7 +58,7 @@ export default function ScanScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const [categories, setCategories] = useState<Category[]>([]);
-
+  const [hasPermission, setHasPermission] = useState(null);
   useEffect(() => {
     const categoriesRef = ref(db, "categories");
     const unsubscribe = onValue(categoriesRef, (snapshot) => {
@@ -93,6 +93,7 @@ export default function ScanScreen() {
     navigation.navigate("createItem", {
       product: productData,
     });
+    setImages([]);
   };
 
   const focusCamera = () => {
@@ -234,10 +235,33 @@ export default function ScanScreen() {
   //   }
   // };
 
+  useEffect(() => {
+    const getCameraPermissions = async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
+    };
+    getCameraPermissions();
+  }, []);
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+
+  if (hasPermission === false) {
+    return (
+      <View style={styles.container}>
+        <Text>Camera permission not granted</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView>
       <View className="p-10 h-full mt-16 ">
-        <Text className="text-3xl font-bold ">Create Item</Text>
+        <Text className="text-3xl font-bold ">Product Scanner</Text>
+        <Text className="text-xl mt-10">
+          Start capturing details of your product!
+        </Text>
         {/* Camera */}
         <View className=" flex-1 h-96 ">
           <Camera style={styles.camera} ref={cameraRef} autoFocus={focus}>
@@ -255,7 +279,16 @@ export default function ScanScreen() {
             />
           </Camera>
           <View className=" absolute items-center top-3/4  w-full">
-            <FontAwesome name="circle" size={45} color="gray" onPress={click} />
+            <FontAwesome name="circle" size={53} color="#018E6F" />
+          </View>
+          <View className=" absolute items-center top-3/4  w-full">
+            <FontAwesome
+              name="circle"
+              size={39}
+              color="white"
+              onPress={click}
+              className="mt-2"
+            />
           </View>
         </View>
         {/* Images */}

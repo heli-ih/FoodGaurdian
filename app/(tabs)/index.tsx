@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, Text, ActivityIndicator, ScrollView, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import {
   Entypo,
   MaterialCommunityIcons,
@@ -13,6 +20,8 @@ import { Product } from "./_layout";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { toHalfFloat } from "three/src/extras/DataUtils";
+
+const donations = [];
 
 const checkExpiry = (expiryDate: string) => {
   const currentDate = new Date();
@@ -89,6 +98,7 @@ const HomeScreen: React.FC = () => {
   //   });
   // }, []);
 
+  // Get Items
   useEffect(() => {
     const recordsRef = ref(db, "records");
     const unsubscribe = onValue(recordsRef, (snapshot) => {
@@ -128,6 +138,7 @@ const HomeScreen: React.FC = () => {
       console.error("Error deleting record:", error);
     }
   };
+
   const handleConfirmDelete = (item: Product) => {
     Alert.alert(
       "Item Deletion",
@@ -154,6 +165,11 @@ const HomeScreen: React.FC = () => {
     });
   };
 
+  const handleDonations = (item: Product) => {
+    donations.push(item);
+    handleDelete(item.id);
+  };
+
   const goCreateItem = () => {
     navigation.navigate("createItem");
   };
@@ -175,21 +191,28 @@ const HomeScreen: React.FC = () => {
         {products.map((item: Product) => {
           const { color, percentage } = checkExpiry(item.expiryDate);
           return (
-            <View className="mb-6  border-2 rounded-md  relative" key={item.id}>
-              {/* Shadow View */}
+            <View
+              className="mb-6 bg-neutral-200 border-neutral-400 border-2 rounded-md  relative"
+              key={item.id}
+            >
+              {/* Shadow Color */}
               <View
                 className="absolute left-0 top-0 bottom-0  opacity-25 rounded-l-md "
                 style={{ width: `${percentage}%`, backgroundColor: `${color}` }}
               />
               {/* Product Info View */}
-              <View className="flex flex-row items-center justify-around  py-4  relative">
-                {/* logo */}
-                <MaterialCommunityIcons
-                  name="food-variant"
-                  size={40}
-                  color={"#018E6F"}
-                />
-                <View className="items-start -left-7 ">
+              <View className="flex flex-row items-center justify-around py-4 relative ">
+                {/* Logo */}
+                <View className="w-[20%] mx-4">
+                  <MaterialCommunityIcons
+                    name="food-variant"
+                    size={40}
+                    color={"#018E6F"}
+                  />
+                </View>
+
+                {/* Details  */}
+                <View className="items-start -left-7 w-[50%]">
                   <Text className="text-base font-semibold pb-2 ">
                     {item.productName}
                   </Text>
@@ -212,22 +235,30 @@ const HomeScreen: React.FC = () => {
                     </Text>
                   </View>
                 </View>
-                <View className="flex flex-row items-start justify-center h-full">
-                  {/* Edit */}
-                  <MaterialCommunityIcons
-                    name="square-edit-outline"
-                    size={19}
-                    color="black"
-                    onPress={() => handleEdit(item.id)}
-                    className=" pt-0.5"
-                  />
-                  {/* Delete */}
-                  <MaterialIcons
-                    name="delete-outline"
-                    size={22}
-                    color="black"
-                    onPress={() => handleConfirmDelete(item)}
-                  />
+                {/* <View >
+
+                </View> */}
+                <View className="flex flex-col justify-between items-center h-24 w-[20%]">
+                  <View className="flex flex-row items-start justify-center">
+                    {/* Edit */}
+                    <MaterialCommunityIcons
+                      name="square-edit-outline"
+                      size={19}
+                      color="black"
+                      onPress={() => handleEdit(item.id)}
+                      className=" pt-0.5"
+                    />
+                    {/* Delete */}
+                    <MaterialIcons
+                      name="delete-outline"
+                      size={22}
+                      color="black"
+                      onPress={() => handleConfirmDelete(item)}
+                    />
+                  </View>
+                  <TouchableOpacity onPress={() => handleDonations(item)}>
+                    <Text className="text-themeBtn shadow-lg">Donate</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,8 @@ import {
   Button,
   Alert,
 } from "react-native";
-import { CameraView, Camera } from "expo-camera/next";
+import { CameraView } from "expo-camera/next";
+import { Camera } from "expo-camera";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "./(tabs)/_layout";
@@ -16,7 +17,16 @@ export default function QRscan() {
   const [hasPermission, setHasPermission] = useState(null);
   const [productData, setProductData] = useState<Product>();
   const [scanned, setScanned] = useState(false);
+  const cameraRef = useRef();
+  const [focus, setFocus] = useState(true);
   const navigation = useNavigation();
+
+  const focusCamera = () => {
+    setFocus(false);
+    setTimeout(() => {
+      setFocus(true);
+    }, 200);
+  };
 
   const goCreateItem = () => {
     navigation.navigate("createItem");
@@ -29,6 +39,7 @@ export default function QRscan() {
     };
     getCameraPermissions();
   }, []);
+
   let EntireResponse;
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
@@ -75,7 +86,7 @@ export default function QRscan() {
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>Camera permission not granted</Text>
+        <Text>Camera permission not granted</Text>
       </View>
     );
   }
@@ -90,31 +101,25 @@ export default function QRscan() {
         onPress={goCreateItem}
       />
       <View className="p-10 mb-32">
-        <Text style={styles.title}>Barcode Scanner</Text>
-        <Text style={styles.paragraph}>Scan the barcode of your product!</Text>
+        <Text className="text-3xl font-bold ">Expiry Date Scanner</Text>
+        <Text className="text-xl my-10">
+          Scan the expiry date of your product!
+        </Text>
         <View style={styles.cameraContainer}>
-          <CameraView
-            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-            barcodeScannerSettings={{
-              barcodeTypes: [
-                "aztec",
-                "ean13",
-                "ean8",
-                "qr",
-                "pdf417",
-                "upc_e",
-                "datamatrix",
-                "code39",
-                "code93",
-                "itf14",
-                "codabar",
-                "code128",
-                "upc_a",
-              ],
-            }}
-            style={styles.camera}
-            focusable={true}
-          />
+          <Camera style={styles.camera} ref={cameraRef} autoFocus={focus}>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={focusCamera}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "transparent",
+              }}
+            />
+          </Camera>
         </View>
         <TouchableOpacity
           className="bg-theme w-32 h-8 rounded-3xl flex items-center justify-center"
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   cameraContainer: {
-    width: "80%",
+    width: "100%",
     aspectRatio: 1,
     overflow: "hidden",
     borderRadius: 10,

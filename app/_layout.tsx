@@ -60,7 +60,8 @@ function RootLayoutNav() {
         <Stack.Screen name="createCategory" options={{ headerShown: false }} />
         <Stack.Screen name="updateCategory" options={{ headerShown: false }} />
         <Stack.Screen name="QRscan" options={{ headerShown: false }} />
-        <Stack.Screen name="barcodeReader" options={{ headerShown: false }} />
+        <Stack.Screen name="barcodeScanner" options={{ headerShown: false }} />
+        <Stack.Screen name="expiryScanner" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

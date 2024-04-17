@@ -15,6 +15,8 @@ export interface Product {
   category: string;
   expiryDate: string;
   quantity: string;
+  numberOfUnits: string;
+  price: string;
 }
 
 export interface Category {

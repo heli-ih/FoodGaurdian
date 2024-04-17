@@ -6,9 +6,13 @@ import QRCode from "react-native-qrcode-svg";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
+import { onValue, ref } from "firebase/database";
+import { db } from "../firebase";
 
 export default function ProfileScreen() {
   const [points, setPoints] = useState<number>(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   let base64Logo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..";
   const route = useRoute();
   const navigation = useNavigation();
@@ -17,7 +21,6 @@ export default function ProfileScreen() {
     "https://firebasestorage.googleapis.com/v0/b/sdp2024-e72ff.appspot.com/o/1.png?alt=media&token=611d2ae0-2ae1-4dcd-86d9-6699190b9b56",
     "https://firebasestorage.googleapis.com/v0/b/sdp2024-e72ff.appspot.com/o/2.png?alt=media&token=1796d557-56ec-4c3c-b935-5dc06ac56cdf",
   ];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleShare = async (uri: string) => {
     try {

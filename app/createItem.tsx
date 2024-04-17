@@ -7,29 +7,42 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 
-import { AntDesign, Entypo, FontAwesome6 } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome6,
+  Fontisto,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "./firebase/index";
-import { ref, set, push, onValue } from "firebase/database";
+import { ref, set, push, onValue, update } from "firebase/database";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./(tabs)/_layout";
+import { Divider } from "@rneui/themed";
 
 export default function CreateItem() {
   const [productData, setProductData] = useState({
     productName: "",
     category: "",
-    quantity: "",
     expiryDate: "",
+    quantity: "",
+    numberOfUnits: "",
+    price: "",
   });
   const cameraRef = useRef();
   const [isFocus, setIsFocus] = useState(false);
+  const [isOptons, setIsOptions] = useState(false);
   const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<Category[]>([]);
 
+  // Get Categories
   useEffect(() => {
     const categoriesRef = ref(db, "categories");
     const unsubscribe = onValue(categoriesRef, (snapshot) => {
@@ -60,6 +73,8 @@ export default function CreateItem() {
       category: string;
       quantity: string;
       expiryDate: string;
+      numberOfUnits: string;
+      price: string;
     }>
   ) => {
     try {
@@ -93,25 +108,34 @@ export default function CreateItem() {
       category: string;
       quantity: string;
       expiryDate: string;
+      numberOfUnits: string;
+      price: string;
     }>
   ) => {
     try {
-      Alert.alert(
-        "Product Confirmation",
-        `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}`,
-        [
-          {
-            text: "Edit",
-          },
-          {
-            text: "Confirm",
-            onPress: () => {
-              handleCreate(productData);
-              console.log("confirmd!"), navigation.navigate("index");
+      if (!productData.productName) {
+        Alert.alert("Product's name is missing!");
+      } else {
+        Alert.alert(
+          "Product Confirmation",
+          `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}\nNumber of Units: ${productData.numberOfUnits}\nPrice: ${productData.price}`,
+          [
+            {
+              text: "Edit",
             },
-          },
-        ]
-      );
+            {
+              text: "Confirm",
+              onPress: () => {
+                handleCreate(productData);
+                console.log("confirmd!"), navigation.navigate("index");
+                setSavings(
+                  Number(productData.numberOfUnits) * Number(productData.price)
+                );
+              },
+            },
+          ]
+        );
+      }
     } catch (error) {
       console.error("Error adding record to the database:", error);
     }
@@ -125,8 +149,12 @@ export default function CreateItem() {
     navigation.navigate("scan");
   };
 
-  const goBarcodeReader = () => {
-    navigation.navigate("barcodeReader");
+  const goBarcodeScanner = () => {
+    navigation.navigate("barcodeScanner");
+  };
+
+  const goExpiryScanner = () => {
+    navigation.navigate("expiryScanner");
   };
 
   const goCreateCategory = () => {
@@ -144,6 +172,8 @@ export default function CreateItem() {
           category: productData.category,
           productName: productData.productName,
           quantity: productData.quantity,
+          numberOfUnits: productData.numberOfUnits,
+          price: productData.price,
         });
     } else {
       console.log("failed");
@@ -156,6 +186,8 @@ export default function CreateItem() {
       category: string;
       quantity: string;
       expiryDate: string;
+      numberOfUnits: string;
+      price: string;
     }>
   ) => {
     setProductData(modifiedProduct);
@@ -171,23 +203,27 @@ export default function CreateItem() {
         onPress={goHome}
       />
       <ScrollView className="p-10 mb-28">
-        <View className="flex flex-row justify-between w-full ">
-          <Text className="text-3xl font-bold mb-10">Create Item</Text>
-          <View className="flex flex-row justify-between pt-2 w-16">
-            <Entypo
-              name="camera"
-              size={24}
-              color={"#018E6F"}
-              onPress={goScan}
-            />
-            <FontAwesome6
-              name="barcode"
-              size={22}
-              color={"#018E6F"}
-              onPress={goBarcodeReader}
+        {/* Title */}
+        <View className="flex flex-row justify-between items-center w-full mb-10">
+          <Text className="text-3xl font-bold">Create Item</Text>
+
+          <View
+            className={
+              isOptons
+                ? "bg-theme rounded-full p-1 mr-3 shadow-md border border-neutral-700"
+                : "p-1"
+            }
+          >
+            <MaterialIcons
+              name="electric-bolt"
+              size={isOptons ? 24 : 28}
+              color={isOptons ? "#F9E869" : "#018E6F"}
+              onPress={() => setIsOptions(!isOptons)}
             />
           </View>
         </View>
+
+        {/* Form  */}
         <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
           {/* Name */}
           <View>
@@ -200,6 +236,8 @@ export default function CreateItem() {
                   category: productData.category,
                   quantity: productData.quantity,
                   expiryDate: productData.expiryDate,
+                  numberOfUnits: productData.numberOfUnits,
+                  price: productData.price,
                 })
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
@@ -227,7 +265,9 @@ export default function CreateItem() {
               search
               labelField="label"
               valueField="value"
-              placeholder={!isFocus ? `${productData.category}` : ""}
+              placeholder={
+                !isFocus && productData ? `${productData.category}` : ""
+              }
               searchPlaceholder="Search..."
               value={productData.category}
               onFocus={() => setIsFocus(true)}
@@ -238,6 +278,8 @@ export default function CreateItem() {
                   category: text.value,
                   productName: productData.productName,
                   quantity: productData.quantity,
+                  numberOfUnits: productData.numberOfUnits,
+                  price: productData.price,
                 });
                 setIsFocus(false);
               }}
@@ -266,12 +308,98 @@ export default function CreateItem() {
                   category: productData.category,
                   productName: productData.productName,
                   quantity: text,
+                  numberOfUnits: productData.numberOfUnits,
+                  price: productData.price,
+                })
+              }
+              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+            />
+          </View>
+
+          {/* Number of units */}
+          <View>
+            <Text className="text-xl font-bold pb-1">Number of units</Text>
+            <TextInput
+              value={productData ? `${productData.numberOfUnits}` : ""}
+              onChangeText={(text) =>
+                handleProductDataChange({
+                  expiryDate: productData.expiryDate,
+                  category: productData.category,
+                  productName: productData.productName,
+                  quantity: productData.quantity,
+                  numberOfUnits: text,
+                  price: productData.price,
+                })
+              }
+              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+            />
+          </View>
+
+          {/* Price */}
+          <View>
+            <Text className="text-xl font-bold pb-1">Price</Text>
+            <TextInput
+              value={productData ? `${productData.price}` : ""}
+              onChangeText={(text) =>
+                handleProductDataChange({
+                  expiryDate: productData.expiryDate,
+                  category: productData.category,
+                  productName: productData.productName,
+                  quantity: productData.quantity,
+                  numberOfUnits: productData.numberOfUnits,
+                  price: text,
                 })
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
           </View>
         </View>
+
+        {/* Options */}
+        {isOptons && (
+          <View className="flex items-start justify-center absolute right-3 top-12 py-3 px-3 rounded-xl bg-slate-50 border-2 border-neutral-300 shadow-xl">
+            <TouchableOpacity
+              onPress={goScan}
+              className="flex flex-row gap-4 items-center px-7 pt-2 w-full"
+            >
+              <Entypo name="camera" size={24} color={"#018E6F"} />
+              <Text className="text-xl font-semibold">AI</Text>
+            </TouchableOpacity>
+            {/* <Divider width={5} color="red" /> */}
+            <Text className="text-neutral-400">
+              ______________________________
+            </Text>
+            <TouchableOpacity
+              onPress={goBarcodeScanner}
+              className="flex flex-row gap-4 items-center px-7 pt-3 w-full"
+            >
+              <FontAwesome6 name="barcode" size={22} color={"#018E6F"} />
+              <Text className="text-xl font-semibold">Barcode Scanner</Text>
+            </TouchableOpacity>
+            <Text className="text-neutral-400">
+              ______________________________
+            </Text>
+            <TouchableOpacity
+              onPress={goExpiryScanner}
+              className="flex flex-row gap-4 items-center px-7 pt-3 w-full"
+            >
+              <Fontisto name="date" size={22} color="#018E6F" />
+              <Text className="text-xl font-semibold">Expiry Scanner</Text>
+            </TouchableOpacity>
+            <Text className="text-neutral-400">
+              ______________________________
+            </Text>
+            <TouchableOpacity className="flex flex-row gap-4 items-center px-7 pt-3 pb-2 w-full">
+              <MaterialCommunityIcons
+                name="food-apple"
+                size={26}
+                color="#018E6F"
+              />
+              <Text className="text-xl font-semibold -ml-1">Raw Food</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Create  */}
         <View className="items-end mb-32 mt-16">
           <View className="bg-theme w-32 rounded-3xl">

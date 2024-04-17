@@ -8,6 +8,7 @@ module.exports = {
         theme: "#018E6F",
         themeDark: "#0A1816",
         themeLight: "#75FCDC",
+        themeBtn: "#2F755C",
       },
     },
   },

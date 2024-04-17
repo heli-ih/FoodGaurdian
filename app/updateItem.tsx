@@ -12,7 +12,7 @@ import {
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "./firebase/index";
-import { ref, set, push, update } from "firebase/database";
+import { ref, set, push, update, onValue } from "firebase/database";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -69,12 +69,13 @@ export default function UpdateItem() {
       console.error("Error updating record to the database:", error);
     }
   };
+
   const handleConfirmation = async () => {
     try {
       productData &&
         Alert.alert(
           "Product Confirmation",
-          `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}`,
+          `Name: ${productData.productName}\nCategory: ${productData.category}\nQuantity: ${productData.quantity}\nExpiryDate: ${productData.expiryDate}\nNumber of Units: ${productData.numberOfUnits}\nPrice: ${productData.price}`,
           [
             {
               text: "Edit",
@@ -84,6 +85,12 @@ export default function UpdateItem() {
               onPress: () => {
                 handleUpdate();
                 console.log("confirmd!"), navigation.navigate("index");
+                setSavings(
+                  Number(productData.numberOfUnits) * Number(productData.price)
+                );
+                console.log(
+                  Number(productData.numberOfUnits) * Number(productData.price)
+                );
               },
             },
           ]
@@ -127,6 +134,7 @@ export default function UpdateItem() {
       <ScrollView className="p-10 mb-32">
         <Text className="text-3xl font-bold mb-10">Modify Item</Text>
 
+        {/* Form  */}
         <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
           {/* Name */}
           <View>
@@ -141,6 +149,8 @@ export default function UpdateItem() {
                     category: productData.category,
                     quantity: productData.quantity,
                     expiryDate: productData.expiryDate,
+                    numberOfUnits: productData.numberOfUnits,
+                    price: productData.price,
                   });
               }}
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
@@ -211,7 +221,53 @@ export default function UpdateItem() {
                     category: productData.category,
                     productName: productData.productName,
                     quantity: text,
+                    numberOfUnits: productData.numberOfUnits,
+                    price: productData.price,
                   });
+              }}
+              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+            />
+          </View>
+
+          {/* Number of units */}
+          <View>
+            <Text className="text-xl font-bold pb-1">Number of units</Text>
+            <TextInput
+              value={productData ? `${productData.numberOfUnits}` : ""}
+              onChangeText={(text) => {
+                if (productData) {
+                  handleProductDataChange({
+                    id: productData.id,
+                    expiryDate: productData.expiryDate,
+                    category: productData.category,
+                    productName: productData.productName,
+                    quantity: productData.quantity,
+                    numberOfUnits: text,
+                    price: productData.price,
+                  });
+                }
+              }}
+              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+            />
+          </View>
+
+          {/* Price */}
+          <View>
+            <Text className="text-xl font-bold pb-1">Price</Text>
+            <TextInput
+              value={productData ? `${productData.price}` : ""}
+              onChangeText={(text) => {
+                if (productData) {
+                  handleProductDataChange({
+                    id: productData.id,
+                    expiryDate: productData.expiryDate,
+                    category: productData.category,
+                    productName: productData.productName,
+                    quantity: productData.quantity,
+                    numberOfUnits: productData.numberOfUnits,
+                    price: text,
+                  });
+                }
               }}
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
