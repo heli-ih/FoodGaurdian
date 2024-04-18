@@ -1,17 +1,24 @@
 import { StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, ScrollView, Image } from "react-native";
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  FontAwesome5,
+  FontAwesome6,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import QRCode from "react-native-qrcode-svg";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import { onValue, ref } from "firebase/database";
 import { db } from "../firebase";
+import { Divider } from "@rneui/themed";
 
 export default function ProfileScreen() {
   const [points, setPoints] = useState<number>(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [savings, setSavings] = useState(0);
 
   let base64Logo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAA..";
   const route = useRoute();
@@ -21,6 +28,17 @@ export default function ProfileScreen() {
     "https://firebasestorage.googleapis.com/v0/b/sdp2024-e72ff.appspot.com/o/1.png?alt=media&token=611d2ae0-2ae1-4dcd-86d9-6699190b9b56",
     "https://firebasestorage.googleapis.com/v0/b/sdp2024-e72ff.appspot.com/o/2.png?alt=media&token=1796d557-56ec-4c3c-b935-5dc06ac56cdf",
   ];
+
+  // Get Savings
+  useEffect(() => {
+    const recordsRef = ref(db, "savings");
+    onValue(recordsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const records = snapshot.val();
+        setSavings(records.value);
+      }
+    });
+  });
 
   const handleShare = async (uri: string) => {
     try {
@@ -58,18 +76,46 @@ export default function ProfileScreen() {
           <Text className=" text-xl text-white">JainDoe@gamil.com</Text>
         </View>
         <View className="bg-themeDark w-screen h-full " style={styles.round}>
-          {/* Score */}
-          <View className="flex justify-between items-center my-7">
-            <Text className="font-bold text-xl text-themeLight">Score:</Text>
-            <Text
-              className={
-                points
-                  ? "font-bold text-4xl text-themeLight "
-                  : "font-semibold text-xl text-themeLight "
-              }
-            >
-              {points ? points : "Start Donating!"}
-            </Text>
+          <View className="flex flex-row text-center ">
+            {/* Score */}
+            <View className="flex justify-between items-center my-7 w-[50%]">
+              <Text className="font-bold text-xl text-themeLight mb-2">
+                Score
+              </Text>
+
+              <Text
+                className={
+                  points
+                    ? "font-bold text-3xl text-themeLight "
+                    : "font-semibold text-xl text-themeLight "
+                }
+              >
+                {points ? (
+                  <>
+                    {points}
+                    <MaterialCommunityIcons
+                      name="trophy-award"
+                      size={24}
+                      color="#F9E869"
+                    />
+                  </>
+                ) : (
+                  "Start Donating!"
+                )}
+              </Text>
+            </View>
+            <Divider width={2} orientation="vertical" color="#75FCDC" />
+            {/* Savings */}
+            <View className="flex justify-between items-center my-7 w-[50%]">
+              <Text className="font-bold text-xl text-themeLight mb-2">
+                Food Spared
+              </Text>
+
+              <Text className="font-bold text-3xl text-themeLight ">
+                ${savings}
+                <FontAwesome6 name="coins" size={22} color="#F9E869" />
+              </Text>
+            </View>
           </View>
 
           <View className=" bg-white h-full p-10" style={styles.round}>

@@ -85,12 +85,6 @@ export default function UpdateItem() {
               onPress: () => {
                 handleUpdate();
                 console.log("confirmd!"), navigation.navigate("index");
-                setSavings(
-                  Number(productData.numberOfUnits) * Number(productData.price)
-                );
-                console.log(
-                  Number(productData.numberOfUnits) * Number(productData.price)
-                );
               },
             },
           ]

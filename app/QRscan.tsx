@@ -86,13 +86,6 @@ export default function QRscan() {
             style={styles.camera}
           />
         </View>
-        <TouchableOpacity
-          className="bg-theme w-32 h-8 rounded-3xl flex items-center justify-center"
-          onPress={() => setScanned(false)}
-          disabled={scanned}
-        >
-          <Text style={styles.buttonText}>Scan</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

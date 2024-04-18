@@ -12,91 +12,53 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { ref, onValue, remove } from "firebase/database";
+import { ref, onValue, remove, update } from "firebase/database";
 import { db } from "../firebase/index";
 import ProductContext from "./_layout";
 import { router } from "expo-router";
 import { Product } from "./_layout";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { toHalfFloat } from "three/src/extras/DataUtils";
 
-const donations = [];
-
-const checkExpiry = (expiryDate: string) => {
-  const currentDate = new Date();
-
-  const [day, month, year] = expiryDate.split("/");
-  const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
-
-  //Difference in ms
-  const diffInMS = formattedExpiryDate.getTime() - currentDate.getTime();
-
-  //Convertm ms to days
-  const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
-  console.log("Difference in days:", diffInDays);
-
-  let color;
-  let percentage;
-
-  if (expiryDate) {
-    if (diffInDays > 10) {
-      // Green zone: diffInDays > 10
-      color = "#32CD32";
-      // percentage = (diffInDays - 10) / 4.5;
-      percentage = 30;
-    } else if (diffInDays > 5) {
-      // Yellow zone: 5 < diffInDays <= 10
-      color = "#FFD700";
-      // percentage = ((diffInDays - 5) / (10 - 5)) * 33.3 + 33.3;
-      percentage = 50;
-    } else {
-      // Red zone: diffInDays <= 5
-      color = "#FF0000";
-      // percentage = (diffInDays / 5) * 33.3 + 66.6;
-      percentage = 80;
-    }
-  }
-
-  return { color, percentage, diffInDays };
-};
+const donations: Product[] = [];
 
 const HomeScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [savings, setSavings] = useState(0);
   const navigation = useNavigation();
 
   // Function to clear notifications
-  const clearNotifications = async () => {
-    await Notifications.cancelAllScheduledNotificationsAsync();
-  };
+  // const clearNotifications = async () => {
+  //   await Notifications.cancelAllScheduledNotificationsAsync();
+  // };
 
   // Notification
-  // useEffect(() => {
-  //   const getNotificationPermission = async () => {
-  //     const { status } = await Notifications.requestPermissionsAsync();
-  //     if (status !== "granted") {
-  //       Alert.alert(
-  //         "Permission Denied",
-  //         "You need to enable notifications for this app to receive reminders."
-  //       );
-  //     }
-  //   };
+  useEffect(() => {
+    const getNotificationPermission = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "You need to enable notifications for this app to receive reminders."
+        );
+      }
+    };
 
-  //   getNotificationPermission();
+    getNotificationPermission();
 
-  //   Notifications.scheduleNotificationAsync({
-  //     content: {
-  //       title: "🟢Don't let good food go to waste!!",
-  //       body: "Check your kitchen for near expiry items... Help make a difference by donating some today!!🌟",
-  //       sound: "default",
-  //     },
-  //     trigger: {
-  //       hour: 10, // 10 AM
-  //       minute: 0,
-  //       repeats: true,
-  //     },
-  //   });
-  // }, []);
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🟢Don't let good food go to waste!!",
+        body: "Check your kitchen for near expiry items... Help make a difference by donating some today!!🌟",
+        sound: "default",
+      },
+      trigger: {
+        hour: 10, // 10 AM
+        minute: 0,
+        repeats: true,
+      },
+    });
+  }, []);
 
   // Get Items
   useEffect(() => {
@@ -128,6 +90,51 @@ const HomeScreen: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const checkExpiry = (expiryDate: string, id: string) => {
+    const currentDate = new Date();
+
+    const [day, month, year] = expiryDate.split("/");
+    const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
+
+    //Difference in ms
+    const diffInMS = formattedExpiryDate.getTime() - currentDate.getTime();
+
+    //Convertm ms to days
+    const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
+    console.log("Difference in days:", diffInDays);
+
+    // Delete already expired items
+    if (diffInDays < 0) {
+      handleDelete(id);
+    }
+
+    let color;
+    let percentage;
+
+    if (expiryDate) {
+      if (diffInDays <= 21) {
+        // only considering 3 weeks (21 days) before expiration
+        // 100/21 = 4.761904761904762 (percentage of each day)
+        percentage = (21 - diffInDays) * 4.761904761904762;
+
+        // last week
+        if (diffInDays <= 7) {
+          color = "#FF0000";
+        } else if (diffInDays <= 14) {
+          color = "#FFD700";
+        } else {
+          color = "#32CD32";
+        }
+      } else {
+        // Green zone: diffInDays > 10
+        // percentage = (diffInDays - 10) / 4.5;
+        percentage = 0;
+      }
+    }
+
+    return { color, percentage, diffInDays };
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -165,10 +172,25 @@ const HomeScreen: React.FC = () => {
     });
   };
 
-  const handleDonations = (item: Product) => {
+  const handleDonations = async (item: Product) => {
     donations.push(item);
     handleDelete(item.id);
+
+    if (item.numberOfUnits && item.price) {
+      const allSavings =
+        savings + Number(item.numberOfUnits) * Number(item.price);
+
+      setSavings(allSavings);
+    }
   };
+
+  const handleTotalSavings = async () => {
+    console.log("Total savings is ", savings);
+    await update(ref(db, "savings"), { value: savings });
+  };
+  if (savings) {
+    handleTotalSavings();
+  }
 
   const goCreateItem = () => {
     navigation.navigate("createItem");
@@ -189,7 +211,7 @@ const HomeScreen: React.FC = () => {
       </View>
       <View className="mb-20">
         {products.map((item: Product) => {
-          const { color, percentage } = checkExpiry(item.expiryDate);
+          const { color, percentage } = checkExpiry(item.expiryDate, item.id);
           return (
             <View
               className="mb-6 bg-neutral-200 border-neutral-400 border-2 rounded-md  relative"

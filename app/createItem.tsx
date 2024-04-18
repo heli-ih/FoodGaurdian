@@ -25,7 +25,6 @@ import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./(tabs)/_layout";
-import { Divider } from "@rneui/themed";
 
 export default function CreateItem() {
   const [productData, setProductData] = useState({
@@ -128,9 +127,6 @@ export default function CreateItem() {
               onPress: () => {
                 handleCreate(productData);
                 console.log("confirmd!"), navigation.navigate("index");
-                setSavings(
-                  Number(productData.numberOfUnits) * Number(productData.price)
-                );
               },
             },
           ]
@@ -365,7 +361,6 @@ export default function CreateItem() {
               <Entypo name="camera" size={24} color={"#018E6F"} />
               <Text className="text-xl font-semibold">AI</Text>
             </TouchableOpacity>
-            {/* <Divider width={5} color="red" /> */}
             <Text className="text-neutral-400">
               ______________________________
             </Text>

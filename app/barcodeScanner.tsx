@@ -30,6 +30,7 @@ export default function QRscan() {
     getCameraPermissions();
   }, []);
   let EntireResponse;
+
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
 
