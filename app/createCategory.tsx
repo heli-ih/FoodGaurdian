@@ -16,7 +16,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-export default function MapScreen() {
+export default function CreateCategoryScreen() {
   const [newCat, setNewCat] = useState({ label: "", value: "" });
   const route = useRoute();
   const navigation = useNavigation();
@@ -33,8 +33,7 @@ export default function MapScreen() {
           {
             text: "OK",
             onPress: () => {
-              console.log("New record ", newCat, " was added successfully!"),
-                navigation.navigate("categories");
+              console.log("New record ", newCat, " was added successfully!");
             },
           },
         ]

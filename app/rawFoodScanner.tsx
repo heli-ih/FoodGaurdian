@@ -17,16 +17,16 @@ import * as FileSystem from "expo-file-system";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-import config from "../../config";
+import config from "../config";
 const apiKey = config.API_KEY;
-import { db } from "../firebase/index";
+import { db } from "./firebase/index";
 import { ref, set, push, onValue } from "firebase/database";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Category } from "./_layout";
+import { Category } from "./(tabs)/_layout";
 import { coolDownAsync } from "expo-web-browser";
 
 async function fileToGenerativePart(path: string, mimeType: string) {
@@ -163,7 +163,17 @@ export default function ScanScreen() {
 
   return (
     <ScrollView>
-      <View className="p-10 h-full mt-16 ">
+      <Ionicons
+        name="arrow-back"
+        size={24}
+        color="black"
+        className="ml-9 mt-20"
+        onPress={goCreateItem}
+      />
+      <View
+        className="p-10 h-full 
+       "
+      >
         <Text className="text-3xl font-bold ">Product Scanner</Text>
         <Text className="text-xl mt-10">
           Start capturing details of your product!

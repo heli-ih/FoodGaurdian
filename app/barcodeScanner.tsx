@@ -30,28 +30,38 @@ export default function QRscan() {
     getCameraPermissions();
   }, []);
   let EntireResponse;
+  let newProductData;
 
   const handleBarCodeScanned = ({ type, data }) => {
+    data = "5000246726011";
     setScanned(true);
+    const url = `https://world.openfoodfacts.org/api/v2/search?code=${data}&fields=product_name,food_groups,expiration_date,quantity,categories_hierarchy`;
 
-    const proxyurl = "https://cors-anywhere.herokuapp.com/"; // Use a proxy to avoid CORS error
-    const api_key = "elylitruvgtbrhgc2s1cf3wqexxq0h";
-    const url =
-      proxyurl +
-      `https://api.barcodelookup.com/v3/products?barcode=${data}&formatted=y&key=` +
-      api_key;
-
+    // Fetch name, category, expiry date and quantity of a product
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setProductData({ ...productData, productName: data.products[0].title });
+        newProductData = {
+          productName: data.products[0].product_name,
+          category: data.products[0].food_groups.slice(3),
+          expiryDate: data.products[0].expiration_date,
+          quantity: data.products[0].quantity,
+        };
+
         EntireResponse = JSON.stringify(data, null, "<br/>");
+        setProductData({
+          ...productData,
+          ...newProductData,
+        });
+        console.log("productData is ", {
+          ...productData,
+          ...newProductData,
+        });
       })
       .catch((err) => {
         throw err;
       });
 
-    console.log(data.products[0].title);
     Alert.alert(
       "Successful",
       `Data is ${data}`,
@@ -60,8 +70,12 @@ export default function QRscan() {
         {
           text: "OK",
           onPress: () => {
-            console.log({ data }, { productData }, { EntireResponse });
-            // navigation.navigate("createItem");
+            navigation.navigate("createItem", {
+              newProductData: {
+                ...productData,
+                ...newProductData,
+              },
+            });
           },
         },
       ]

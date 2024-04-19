@@ -9,7 +9,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-
 import {
   AntDesign,
   Entypo,
@@ -38,8 +37,10 @@ export default function CreateItem() {
   const cameraRef = useRef();
   const [isFocus, setIsFocus] = useState(false);
   const [isOptons, setIsOptions] = useState(false);
+  const [isCreateCategory, setIsCreateCategory] = useState(false);
   const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<Category[]>([]);
+  const [newCat, setNewCat] = useState({ label: "", value: "" });
 
   // Get Categories
   useEffect(() => {
@@ -54,7 +55,6 @@ export default function CreateItem() {
           })
         );
         setCategories(fetchedCategories);
-        console.log("fetchedCategories ", fetchedCategories);
       } else {
         console.log("No categories found in the database.");
       }
@@ -65,6 +65,28 @@ export default function CreateItem() {
 
   const route = useRoute();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (route.params) {
+      if (
+        route.params.newProductData &&
+        route.params.newProductData.expiryDate
+      ) {
+        const [day, month, year] =
+          route.params.newProductData.expiryDate.split("/");
+        const isoDate = new Date(year, month - 1, day).toISOString();
+        const parsedDate = new Date(isoDate);
+        // Set the state with the ISO 8601 formatted date string
+        console.log(parsedDate);
+        setDate(parsedDate);
+      }
+
+      if (route.params.newProductData) {
+        setProductData(route.params.newProductData);
+      }
+    }
+    setIsOptions(false);
+  }, [route.params]);
 
   const handleCreate = async (
     productData: React.SetStateAction<{
@@ -153,13 +175,14 @@ export default function CreateItem() {
     navigation.navigate("expiryScanner");
   };
 
-  const goCreateCategory = () => {
-    navigation.navigate("createCategory");
+  const goRawFoodScanner = () => {
+    navigation.navigate("rawFoodScanner");
   };
 
   const onChange = ({ type }, selectedDate) => {
     if (type == "set") {
       setDate(selectedDate);
+      console.log(selectedDate);
 
       const formattedDate = selectedDate.toLocaleDateString();
       if (productData)
@@ -187,6 +210,48 @@ export default function CreateItem() {
     }>
   ) => {
     setProductData(modifiedProduct);
+  };
+
+  const handleCategoryCreate = async () => {
+    try {
+      const newCategoryRef = push(ref(db, "categories"));
+      await set(newCategoryRef, { ...newCat });
+
+      Alert.alert(
+        "Category Created",
+        "The category has been created successfully!",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("New record ", newCat, " was added successfully!");
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error adding record to the database:", error);
+    }
+    setNewCat({ label: "", value: "" });
+  };
+
+  const handleCategoryConfirmation = async () => {
+    try {
+      Alert.alert("Category Confirmation", `Name: ${newCat.value}`, [
+        {
+          text: "Edit",
+        },
+        {
+          text: "Confirm",
+          onPress: () => {
+            handleCategoryCreate();
+            console.log("confirmd!"), setIsCreateCategory(!isCreateCategory);
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error("Error confirming:", error);
+    }
   };
 
   return (
@@ -225,15 +290,15 @@ export default function CreateItem() {
           <View>
             <Text className="text-xl font-bold pb-1">Name</Text>
             <TextInput
-              value={productData ? `${productData.productName}` : ""}
+              value={
+                productData && productData.productName
+                  ? productData.productName
+                  : ""
+              }
               onChangeText={(text) =>
                 handleProductDataChange({
+                  ...productData,
                   productName: text,
-                  category: productData.category,
-                  quantity: productData.quantity,
-                  expiryDate: productData.expiryDate,
-                  numberOfUnits: productData.numberOfUnits,
-                  price: productData.price,
                 })
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
@@ -249,7 +314,9 @@ export default function CreateItem() {
                 color="black"
                 name="pluscircleo"
                 size={15}
-                onPress={goCreateCategory}
+                onPress={() => {
+                  setIsCreateCategory(true);
+                }}
               />
             </View>
 
@@ -262,10 +329,14 @@ export default function CreateItem() {
               labelField="label"
               valueField="value"
               placeholder={
-                !isFocus && productData ? `${productData.category}` : ""
+                !isFocus && productData && productData.category
+                  ? `${productData.category}`
+                  : ""
               }
               searchPlaceholder="Search..."
-              value={productData.category}
+              value={
+                productData && productData.category ? productData.category : ""
+              }
               onFocus={() => setIsFocus(true)}
               onBlur={() => setIsFocus(false)}
               onChange={(text) => {
@@ -277,6 +348,7 @@ export default function CreateItem() {
                   numberOfUnits: productData.numberOfUnits,
                   price: productData.price,
                 });
+
                 setIsFocus(false);
               }}
             />
@@ -297,15 +369,15 @@ export default function CreateItem() {
           <View>
             <Text className="text-xl font-bold pb-1">Quantity</Text>
             <TextInput
-              value={productData ? `${productData.quantity}` : ""}
+              value={
+                productData && productData.quantity
+                  ? `${productData.quantity}`
+                  : ""
+              }
               onChangeText={(text) =>
                 handleProductDataChange({
-                  expiryDate: productData.expiryDate,
-                  category: productData.category,
-                  productName: productData.productName,
+                  ...productData,
                   quantity: text,
-                  numberOfUnits: productData.numberOfUnits,
-                  price: productData.price,
                 })
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
@@ -316,15 +388,15 @@ export default function CreateItem() {
           <View>
             <Text className="text-xl font-bold pb-1">Number of units</Text>
             <TextInput
-              value={productData ? `${productData.numberOfUnits}` : ""}
+              value={
+                productData && productData.numberOfUnits
+                  ? `${productData.numberOfUnits}`
+                  : ""
+              }
               onChangeText={(text) =>
                 handleProductDataChange({
-                  expiryDate: productData.expiryDate,
-                  category: productData.category,
-                  productName: productData.productName,
-                  quantity: productData.quantity,
+                  ...productData,
                   numberOfUnits: text,
-                  price: productData.price,
                 })
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
@@ -335,14 +407,12 @@ export default function CreateItem() {
           <View>
             <Text className="text-xl font-bold pb-1">Price</Text>
             <TextInput
-              value={productData ? `${productData.price}` : ""}
+              value={
+                productData && productData.price ? `${productData.price}` : ""
+              }
               onChangeText={(text) =>
                 handleProductDataChange({
-                  expiryDate: productData.expiryDate,
-                  category: productData.category,
-                  productName: productData.productName,
-                  quantity: productData.quantity,
-                  numberOfUnits: productData.numberOfUnits,
+                  ...productData,
                   price: text,
                 })
               }
@@ -384,7 +454,10 @@ export default function CreateItem() {
             <Text className="text-neutral-400">
               ______________________________
             </Text>
-            <TouchableOpacity className="flex flex-row gap-4 items-center px-7 pt-3 pb-2 w-full">
+            <TouchableOpacity
+              onPress={goRawFoodScanner}
+              className="flex flex-row gap-4 items-center px-7 pt-3 pb-2 w-full"
+            >
               <MaterialCommunityIcons
                 name="food-apple"
                 size={26}
@@ -408,6 +481,51 @@ export default function CreateItem() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Create Category Modal */}
+      {isCreateCategory && (
+        <View className="bg-white border-2 border-neutral-300 rounded-xl shadow-md shadow-black absolute top-52 left-10 w-[83%]">
+          <View className="flex flex-row justify-end items-center w-fit">
+            {/* Close  */}
+            <Ionicons
+              name="close-outline"
+              size={24}
+              color="black"
+              className="m-5 mb-0"
+              onPress={() => setIsCreateCategory(!isCreateCategory)}
+            />
+          </View>
+          <ScrollView className="p-10 h-full mb-5">
+            <Text className="text-2xl font-bold mb-10">Create Category</Text>
+
+            <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
+              {/* Name */}
+              <View>
+                <Text className="text-xl font-bold pb-1">Name</Text>
+                <TextInput
+                  className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+                  onChangeText={(text) =>
+                    setNewCat({ label: text, value: text })
+                  }
+                  value={
+                    productData.category ? productData.category : newCat.value
+                  }
+                />
+              </View>
+              {/* Create  */}
+              <View className="items-end  mt-16">
+                <View className="bg-theme w-32 rounded-3xl">
+                  <Button
+                    title="Create"
+                    onPress={handleCategoryConfirmation}
+                    color="white"
+                  ></Button>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }

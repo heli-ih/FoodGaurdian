@@ -18,28 +18,53 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Product } from "./(tabs)/_layout";
 
-const category = [
-  { label: "Bread", value: "Bread" },
-  { label: "Milk", value: "Milk" },
-  { label: "Cheese", value: "Cheese" },
-  { label: "Chicken", value: "Chicken" },
-  { label: "Meats", value: "Meats" },
-  { label: "Fruits", value: "Fruits" },
-  { label: "Vegetables", value: "Vegetables" },
-];
-
 export default function UpdateItem() {
   const [productData, setProductData] = useState<Product>();
   const [isFocus, setIsFocus] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [date, setDate] = useState(new Date());
   const route = useRoute();
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (route.params.selectedProduct) {
-      setProductData(route.params.selectedProduct[0]);
+    if (
+      route.params.selectedProduct &&
+      route.params.selectedProduct.length > 0
+    ) {
+      const firstProduct = route.params.selectedProduct[0];
+      if (firstProduct && firstProduct.expiryDate) {
+        const expDate = firstProduct.expiryDate;
+        const [day, month, year] = expDate.split("/");
+        const isoDate = new Date(year, month - 1, day).toISOString();
+        const parsedDate = new Date(isoDate);
+
+        console.log(parsedDate);
+        setDate(parsedDate);
+      }
+      setProductData(firstProduct);
     }
   }, [route.params]);
+
+  // Get Categories
+  useEffect(() => {
+    const categoriesRef = ref(db, "categories");
+    const unsubscribe = onValue(categoriesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const categories = snapshot.val();
+        const fetchedCategories: Category[] = Object.entries(categories).map(
+          ([id, cat]) => ({
+            id,
+            ...cat,
+          })
+        );
+        setCategories(fetchedCategories);
+      } else {
+        console.log("No categories found in the database.");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const goHome = () => {
     navigation.navigate("index");
@@ -155,18 +180,12 @@ export default function UpdateItem() {
           <View>
             <View className="flex flex-row justify-between items-center w-full pb-1 pr-2">
               <Text className="text-xl font-bold ">Category</Text>
-              {/* <AntDesign
-                  style={styles.icon}
-                  color="black"
-                  name="pluscircleo"
-                  size={15}
-                /> */}
             </View>
             <Dropdown
               style={[styles.dropdown, isFocus && { borderColor: "#018E6F" }]}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
-              data={category}
+              data={categories}
               search
               labelField="label"
               valueField="value"
@@ -182,10 +201,13 @@ export default function UpdateItem() {
                   handleProductDataChange({
                     id: productData.id,
                     expiryDate: productData.expiryDate,
-                    category: text,
+                    category: text.value,
                     productName: productData.productName,
                     quantity: productData.quantity,
+                    numberOfUnits: productData.numberOfUnits,
+                    price: productData.price,
                   });
+
                 setIsFocus(false);
               }}
             />

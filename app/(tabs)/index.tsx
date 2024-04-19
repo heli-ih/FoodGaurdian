@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  Platform,
+  Button,
 } from "react-native";
 import {
   Entypo,
@@ -19,59 +21,123 @@ import { router } from "expo-router";
 import { Product } from "./_layout";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+const checkExpiry = (expiryDate: string) => {
+  const currentDate = new Date();
+
+  const [day, month, year] = expiryDate.split("/");
+  const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
+
+  //Difference in ms
+  const diffInMS = formattedExpiryDate.getTime() - currentDate.getTime();
+
+  //Convertm ms to days
+  const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
+
+  let color;
+  let percentage;
+
+  if (expiryDate) {
+    if (diffInDays <= 21) {
+      // only considering 3 weeks (21 days) before expiration
+      // 100/21 = 4.761904761904762 (percentage of each day)
+      percentage = (21 - diffInDays) * 4.761904761904762;
+
+      // last week
+      if (diffInDays <= 7) {
+        color = "#FF0000";
+      } else if (diffInDays <= 14) {
+        color = "#FFD700";
+      } else {
+        color = "#32CD32";
+      }
+    } else {
+      // Green zone: diffInDays > 10
+      // percentage = (diffInDays - 10) / 4.5;
+      percentage = 0;
+    }
+  }
+
+  return { color, percentage, diffInDays };
+};
 
 const donations: Product[] = [];
 
 const HomeScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [nearExpiryItems, setNearExpiryItems] = useState<string[]>([]);
   const [savings, setSavings] = useState(0);
   const navigation = useNavigation();
 
   // Function to clear notifications
-  // const clearNotifications = async () => {
-  //   await Notifications.cancelAllScheduledNotificationsAsync();
-  // };
+  const clearNotifications = async () => {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  };
 
   // Notification
-  useEffect(() => {
-    const getNotificationPermission = async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "You need to enable notifications for this app to receive reminders."
-        );
-      }
-    };
+  // useEffect(() => {
+  // const getNotificationPermission = async () => {
+  //   const { status } = await Notifications.requestPermissionsAsync();
+  //   if (status !== "granted") {
+  //     Alert.alert(
+  //       "Permission Denied",
+  //       "You need to enable notifications for this app to receive reminders."
+  //     );
+  //   }
+  // };
+  // getNotificationPermission();
 
-    getNotificationPermission();
+  // }, []);
 
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: "🟢Don't let good food go to waste!!",
-        body: "Check your kitchen for near expiry items... Help make a difference by donating some today!!🌟",
-        sound: "default",
-      },
-      trigger: {
-        hour: 10, // 10 AM
-        minute: 0,
-        repeats: true,
-      },
-    });
-  }, []);
+  // Daily Notification
+  // Notifications.scheduleNotificationAsync({
+  //   content: {
+  //     title: "🟢Don't let good food go to waste!!",
+  //     body: `Check out prodects: ${nearExpiryItems.join(
+  //       ", "
+  //     )}. They are about to expire soon!! Help make a difference by donating them today!!🌟`,
+  //     sound: "default",
+  //   },
+  //   trigger: {
+  //     // hour: 10,
+  //     // minute: 0,
+  //     seconds: 60 * 30,
+  //     repeats: true,
+  //   },
+  // });
 
-  // Get Items
+  // Get Items & near expiry products
   useEffect(() => {
     const recordsRef = ref(db, "records");
     const unsubscribe = onValue(recordsRef, (snapshot) => {
       if (snapshot.exists()) {
         const records = snapshot.val();
-        const fetchedProducts: Product[] = Object.entries(records).map(
-          ([id, product]) => ({
-            id,
-            ...product,
+        const currentDate = new Date();
+        const fetchedProducts: Product[] = Object.entries(records)
+          .map(([id, product]) => {
+            const { expiryDate } = product;
+            const [day, month, year] = expiryDate.split("/");
+            const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
+            if (formattedExpiryDate > currentDate) {
+              return {
+                id,
+                ...product,
+              };
+            } else {
+              return null;
+            }
           })
-        );
+          .filter((product) => product !== null); // Filter out expired products
+
         fetchedProducts.sort((a, b) => {
           const diffA = checkExpiry(a.expiryDate).diffInDays;
           const diffB = checkExpiry(b.expiryDate).diffInDays;
@@ -80,61 +146,49 @@ const HomeScreen: React.FC = () => {
 
         setProducts(fetchedProducts);
         console.log("fetchedProducts ", fetchedProducts);
+
+        // Capturing nearExpiryItems which expire within 3 days -- for notifications
+        setNearExpiryItems([]);
+        fetchedProducts.map((product: Product) => {
+          const { expiryDate } = product;
+          const [day, month, year] = expiryDate.split("/");
+          const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
+          //Difference in ms
+          const diffInMS =
+            formattedExpiryDate.getTime() - currentDate.getTime();
+          //Convert ms to days
+          const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
+
+          if (diffInDays <= 3) {
+            setNearExpiryItems((prevItems) => [
+              ...prevItems,
+              product.productName,
+            ]);
+          }
+        });
       } else {
         console.log("No records found in the database.");
       }
     });
 
-    // clearNotifications();
-    // console.log("cleared");
+    Alert.alert(
+      "✨It's time!✨",
+      "Please observe the 🔻RED🔺 items! They are about to expire!!\nYou can donate them at the nearest food bank!",
+      [
+        {
+          text: "Donate Now!🙌🏼",
+          onPress: () => {
+            navigation.navigate("maps");
+          },
+        },
+        { text: "Later" },
+      ]
+    );
 
+    clearNotifications();
     return () => unsubscribe();
   }, []);
-
-  const checkExpiry = (expiryDate: string, id: string) => {
-    const currentDate = new Date();
-
-    const [day, month, year] = expiryDate.split("/");
-    const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
-
-    //Difference in ms
-    const diffInMS = formattedExpiryDate.getTime() - currentDate.getTime();
-
-    //Convertm ms to days
-    const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
-    console.log("Difference in days:", diffInDays);
-
-    // Delete already expired items
-    if (diffInDays < 0) {
-      handleDelete(id);
-    }
-
-    let color;
-    let percentage;
-
-    if (expiryDate) {
-      if (diffInDays <= 21) {
-        // only considering 3 weeks (21 days) before expiration
-        // 100/21 = 4.761904761904762 (percentage of each day)
-        percentage = (21 - diffInDays) * 4.761904761904762;
-
-        // last week
-        if (diffInDays <= 7) {
-          color = "#FF0000";
-        } else if (diffInDays <= 14) {
-          color = "#FFD700";
-        } else {
-          color = "#32CD32";
-        }
-      } else {
-        // Green zone: diffInDays > 10
-        // percentage = (diffInDays - 10) / 4.5;
-        percentage = 0;
-      }
-    }
-
-    return { color, percentage, diffInDays };
-  };
+  console.log("nearExpiryItems", nearExpiryItems);
 
   const handleDelete = async (id) => {
     try {
@@ -193,11 +247,22 @@ const HomeScreen: React.FC = () => {
   }
 
   const goCreateItem = () => {
-    navigation.navigate("createItem");
+    navigation.navigate("createItem", {
+      newProductData: {
+        id: "",
+        productName: "",
+        category: "",
+        expiryDate: "",
+        quantity: "",
+        numberOfUnits: "",
+        price: "",
+      },
+    });
   };
 
   return (
     <ScrollView className="p-10 h-full mt-20">
+      {/* Title  */}
       <View className="flex flex-row justify-between items-center mt-5 mb-12">
         <Text className="font-bold text-3xl ">Items</Text>
         <View className="flex flex-row">
@@ -209,6 +274,8 @@ const HomeScreen: React.FC = () => {
           />
         </View>
       </View>
+
+      {/* Items  */}
       <View className="mb-20">
         {products.map((item: Product) => {
           const { color, percentage } = checkExpiry(item.expiryDate, item.id);

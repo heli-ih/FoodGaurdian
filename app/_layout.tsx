@@ -10,6 +10,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "../global.css";
 import { useColorScheme } from "@/components/useColorScheme";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs(["Console Warning: Cssinterop upgrade warning."]);
+LogBox.ignoreAllLogs();
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -62,6 +66,7 @@ function RootLayoutNav() {
         <Stack.Screen name="QRscan" options={{ headerShown: false }} />
         <Stack.Screen name="barcodeScanner" options={{ headerShown: false }} />
         <Stack.Screen name="expiryScanner" options={{ headerShown: false }} />
+        <Stack.Screen name="rawFoodScanner" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
