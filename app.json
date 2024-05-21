@@ -13,7 +13,9 @@
       "text": "FoodGuardian",
       "backgroundColor": "#3E8C7A"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.SDP1"
@@ -30,7 +32,11 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "@react-native-firebase/app"],
+    "plugins": [
+      "expo-router",
+      "@react-native-firebase/app",
+      "expo-font"
+    ],
     "experiments": {
       "typedRoutes": true
     },
