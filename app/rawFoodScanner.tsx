@@ -12,7 +12,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { Camera } from "expo-camera";
+import { Camera } from "expo-camera/legacy";
 import * as FileSystem from "expo-file-system";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -54,7 +54,7 @@ export default function ScanScreen() {
     quantity: "",
     expiryDate: "",
   });
-  const cameraRef = useRef();
+  const cameraRef = useRef(null);
   const [images, setImages] = useState([]);
   const [focus, setFocus] = useState(true);
   const route = useRoute();
@@ -70,8 +70,7 @@ export default function ScanScreen() {
         const categories = snapshot.val();
         const fetchedCategories: Category[] = Object.entries(categories).map(
           ([id, cat]) => ({
-            id,
-            ...cat,
+            ...(cat as Category),
           })
         );
         setCategories(fetchedCategories);

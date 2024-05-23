@@ -7,7 +7,8 @@ import {
   Button,
   Alert,
 } from "react-native";
-import { CameraView, Camera } from "expo-camera/next";
+import { CameraView } from "expo-camera";
+import { Camera } from "expo-camera/legacy";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "./(tabs)/_layout";

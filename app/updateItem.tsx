@@ -16,7 +16,7 @@ import { ref, set, push, update, onValue } from "firebase/database";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Product } from "./(tabs)/_layout";
+import { Category, Product } from "./(tabs)/_layout";
 
 export default function UpdateItem() {
   const [productData, setProductData] = useState<Product>();
@@ -53,8 +53,7 @@ export default function UpdateItem() {
         const categories = snapshot.val();
         const fetchedCategories: Category[] = Object.entries(categories).map(
           ([id, cat]) => ({
-            id,
-            ...cat,
+            ...(cat as Category),
           })
         );
         setCategories(fetchedCategories);

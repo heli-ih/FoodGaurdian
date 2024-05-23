@@ -12,7 +12,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { Camera } from "expo-camera";
+import { Camera } from "expo-camera/legacy";
 import * as FileSystem from "expo-file-system";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";

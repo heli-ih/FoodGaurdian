@@ -124,7 +124,8 @@ const HomeScreen: React.FC = () => {
         const currentDate = new Date();
         const fetchedProducts: Product[] = Object.entries(records)
           .map(([id, product]) => {
-            const { expiryDate } = product;
+            // console.log("product", product);
+            const { expiryDate } = product as Product;
             const [day, month, year] = expiryDate.split("/");
             const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
             if (formattedExpiryDate > currentDate) {
@@ -278,7 +279,7 @@ const HomeScreen: React.FC = () => {
       {/* Items  */}
       <View className="mb-20">
         {products.map((item: Product) => {
-          const { color, percentage } = checkExpiry(item.expiryDate, item.id);
+          const { color, percentage } = checkExpiry(item.expiryDate);
           return (
             <View
               className="mb-6 bg-neutral-200 border-neutral-400 border-2 rounded-md  relative"

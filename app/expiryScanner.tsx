@@ -9,8 +9,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { CameraView } from "expo-camera/next";
-import { Camera } from "expo-camera";
+import { CameraView } from "expo-camera";
+import { Camera } from "expo-camera/legacy";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "./(tabs)/_layout";

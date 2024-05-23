@@ -38,13 +38,13 @@ export default function MapScreen() {
 
   useEffect(() => {
     const categoriesRef = ref(db, "categories");
+
     const unsubscribe = onValue(categoriesRef, (snapshot) => {
       if (snapshot.exists()) {
         const categories = snapshot.val();
         const fetchedCategories: Category[] = Object.entries(categories).map(
           ([id, cat]) => ({
-            id,
-            ...cat,
+            ...(cat as Category),
           })
         );
         setCategories(fetchedCategories);

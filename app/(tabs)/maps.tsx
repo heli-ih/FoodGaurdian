@@ -59,7 +59,6 @@ export default function MapsScreen() {
     <View style={{ flex: 1 }}>
       <MapView
         style={StyleSheet.absoluteFill}
-        provider={PROVIDER_GOOGLE}
         initialRegion={INITIAL_REGION}
         showsUserLocation
         showsMyLocationButton

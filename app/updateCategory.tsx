@@ -35,7 +35,7 @@ export default function MapScreen() {
   const handleUpdate = async () => {
     if (newCat)
       try {
-        await update(ref(db, `records/${newCat.id}`), newCat);
+        await update(ref(db, `categories/${newCat.id}`), newCat);
 
         Alert.alert(
           "Category Updated",
@@ -94,7 +94,12 @@ export default function MapScreen() {
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
               onChangeText={(text) => {
                 if (newCat)
-                  setNewCat({ id: newCat.id, label: text, value: text });
+                  setNewCat({
+                    id: newCat.id,
+                    label: text,
+                    value: text,
+                    img: "../assets/images/newCatTest.png",
+                  });
               }}
               value={newCat ? newCat.value : ""}
             />
