@@ -24,6 +24,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./(tabs)/_layout";
+import { format } from "date-fns";
 
 export default function CreateItem() {
   const [productData, setProductData] = useState({
@@ -184,7 +185,8 @@ export default function CreateItem() {
       setDate(selectedDate);
       console.log(selectedDate);
 
-      const formattedDate = selectedDate.toLocaleDateString();
+      const formattedDate = format(selectedDate, "dd/MM/yyyy");
+      console.log(formattedDate);
       if (productData)
         handleProductDataChange({
           expiryDate: formattedDate,

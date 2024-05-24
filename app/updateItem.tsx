@@ -17,6 +17,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category, Product } from "./(tabs)/_layout";
+import { format } from "date-fns";
 
 export default function UpdateItem() {
   const [productData, setProductData] = useState<Product>();
@@ -122,7 +123,8 @@ export default function UpdateItem() {
     if (type == "set") {
       setDate(selectedDate);
 
-      const formattedDate = selectedDate.toLocaleDateString();
+      const formattedDate = format(selectedDate, "dd/MM/yyyy");
+      console.log(formattedDate);
       if (productData)
         handleProductDataChange({
           id: productData.id,

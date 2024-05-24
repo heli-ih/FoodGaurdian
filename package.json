@@ -21,6 +21,7 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
     "@rneui/themed": "^4.0.0-rc.8",
+    "date-fns": "^3.6.0",
     "expo": "^51.0.8",
     "expo-barcode-scanner": "~13.0.1",
     "expo-camera": "~15.0.9",
