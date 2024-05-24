@@ -147,6 +147,7 @@ const HomeScreen: React.FC = () => {
 
         setProducts(fetchedProducts);
         console.log("fetchedProducts ", fetchedProducts);
+        console.log("Products ", products);
 
         // Capturing nearExpiryItems which expire within 3 days -- for notifications
         setNearExpiryItems([]);

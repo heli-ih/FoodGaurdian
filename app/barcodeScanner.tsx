@@ -34,7 +34,6 @@ export default function QRscan() {
   let newProductData;
 
   const handleBarCodeScanned = ({ type, data }) => {
-    data = "5000246726011";
     setScanned(true);
     const url = `https://world.openfoodfacts.org/api/v2/search?code=${data}&fields=product_name,food_groups,expiration_date,quantity,categories_hierarchy`;
 
