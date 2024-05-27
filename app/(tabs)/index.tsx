@@ -74,7 +74,6 @@ const donations: Product[] = [];
 
 const HomeScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [nearExpiryItems, setNearExpiryItems] = useState<string[]>([]);
   const [savings, setSavings] = useState(0);
   const navigation = useNavigation();
 
@@ -150,24 +149,24 @@ const HomeScreen: React.FC = () => {
         console.log("Products ", products);
 
         // Capturing nearExpiryItems which expire within 3 days -- for notifications
-        setNearExpiryItems([]);
-        fetchedProducts.map((product: Product) => {
-          const { expiryDate } = product;
-          const [day, month, year] = expiryDate.split("/");
-          const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
-          //Difference in ms
-          const diffInMS =
-            formattedExpiryDate.getTime() - currentDate.getTime();
-          //Convert ms to days
-          const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
+        // setNearExpiryItems([]);
+        // fetchedProducts.map((product: Product) => {
+        //   const { expiryDate } = product;
+        //   const [day, month, year] = expiryDate.split("/");
+        //   const formattedExpiryDate = new Date(`${year}-${month}-${day}`);
+        //   //Difference in ms
+        //   const diffInMS =
+        //     formattedExpiryDate.getTime() - currentDate.getTime();
+        //   //Convert ms to days
+        //   const diffInDays = Math.ceil(diffInMS / (1000 * 60 * 60 * 24));
 
-          if (diffInDays <= 3) {
-            setNearExpiryItems((prevItems) => [
-              ...prevItems,
-              product.productName,
-            ]);
-          }
-        });
+        //   if (diffInDays <= 3) {
+        //     setNearExpiryItems((prevItems) => [
+        //       ...prevItems,
+        //       product.productName,
+        //     ]);
+        //   }
+        // });
       } else {
         console.log("No records found in the database.");
       }
@@ -190,7 +189,6 @@ const HomeScreen: React.FC = () => {
     clearNotifications();
     return () => unsubscribe();
   }, []);
-  console.log("nearExpiryItems", nearExpiryItems);
 
   const handleDelete = async (id) => {
     try {
