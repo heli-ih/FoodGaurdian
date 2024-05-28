@@ -116,6 +116,58 @@ const HomeScreen: React.FC = () => {
   // });
 
   // Get Items & near expiry products
+  let today = new Date();
+  if (date != today) {
+    setDate(today);
+  }
+
+  useEffect(() => {
+    let toDonate: string[] = [];
+    products.map((item: Product) => {
+      const { color, percentage } = checkExpiry(item.expiryDate);
+      if (color == "#FF0000") {
+        toDonate.push(item.productName);
+      }
+    });
+
+    // Daily Notification
+    if (toDonate.length > 0) {
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🟢Don't let good food go to waste!!",
+          body: `Check out products: ${
+            toDonate.length <= 3
+              ? toDonate.join(", ")
+              : toDonate.slice(0, 3).join(", ") + " ..."
+          }. They are about to expire soon!! Help make a difference by donating them today!!🌟`,
+          sound: "default",
+        },
+        trigger: {
+          hour: 16,
+          minute: 35,
+          repeats: true,
+        },
+      });
+    }
+
+    const dayOfWeek = date.getDay();
+    // Check if today is Saturday (6)
+    if (dayOfWeek === 0) {
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🪷It is the weekend",
+          body: `Use the weekend to donate food!📌`,
+          sound: "default",
+        },
+        trigger: {
+          hour: 16,
+          minute: 35,
+          repeats: true,
+        },
+      });
+    }
+  }, [date]);
+
   useEffect(() => {
     const recordsRef = ref(db, "records");
     const unsubscribe = onValue(recordsRef, (snapshot) => {
@@ -173,19 +225,19 @@ const HomeScreen: React.FC = () => {
       }
     });
 
-    Alert.alert(
-      "✨It's time!✨",
-      "Please observe the 🔻RED🔺 items! They are about to expire!!\nYou can donate them at the nearest food bank!",
-      [
-        {
-          text: "Donate Now!🙌🏼",
-          onPress: () => {
-            navigation.navigate("maps");
-          },
-        },
-        { text: "Later" },
-      ]
-    );
+    // Alert.alert(
+    //   "✨It's time!✨",
+    //   "Please observe the 🔻RED🔺 items! They are about to expire!!\nYou can donate them at the nearest food bank!",
+    //   [
+    //     {
+    //       text: "Donate Now!🙌🏼",
+    //       onPress: () => {
+    //         navigation.navigate("maps");
+    //       },
+    //     },
+    //     { text: "Later" },
+    //   ]
+    // );
 
     clearNotifications();
     return () => unsubscribe();
@@ -243,6 +295,7 @@ const HomeScreen: React.FC = () => {
     console.log("Total savings is ", savings);
     await update(ref(db, "savings"), { value: savings });
   };
+
   if (savings) {
     handleTotalSavings();
   }
@@ -260,56 +313,6 @@ const HomeScreen: React.FC = () => {
       },
     });
   };
-
-  let today = new Date()
-  if (date != today) {
-    setDate(today);
-  }
-
-
-  useEffect(() => {
-      let toDonate: string[] = []; 
-      products.map((item: Product) => {
-        const { color, percentage } = checkExpiry(item.expiryDate);
-        if (color == "#FF0000"){
-          toDonate.push(item.productName);
-        }
-      });
-      
-      // Daily Notification
-      if (toDonate.length > 0) {
-        Notifications.scheduleNotificationAsync({
-        content: {
-          title: "🟢Don't let good food go to waste!!",
-          body: `Check out products: ${toDonate.length <= 3 ? toDonate.join(", ") : toDonate.slice(0, 3).join(", ")+' ...'}. They are about to expire soon!! Help make a difference by donating them today!!🌟`,
-          sound: "default",
-        },
-        trigger: {
-          hour: 16,
-          minute: 35,
-          repeats: true
-        },
-      });
-      }
-
-      const dayOfWeek = date.getDay();
-      // Check if today is Saturday (6)
-      if (dayOfWeek === 0) {
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: "🪷It is the weekend",
-            body: `Use the weekend to donate food!📌`,
-            sound: "default",
-          },
-          trigger: {
-            hour: 16,
-            minute: 35,
-            repeats: true
-          },
-        });
-      }
-    },[date])
-
 
   return (
     <ScrollView className="p-10 h-full mt-20">
