@@ -75,6 +75,7 @@ const donations: Product[] = [];
 const HomeScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [savings, setSavings] = useState(0);
+  const [date, setDate] = useState(new Date());
   const navigation = useNavigation();
 
   // Function to clear notifications
@@ -259,6 +260,56 @@ const HomeScreen: React.FC = () => {
       },
     });
   };
+
+  let today = new Date()
+  if (date != today) {
+    setDate(today);
+  }
+
+
+  useEffect(() => {
+      let toDonate: string[] = []; 
+      products.map((item: Product) => {
+        const { color, percentage } = checkExpiry(item.expiryDate);
+        if (color == "#FF0000"){
+          toDonate.push(item.productName);
+        }
+      });
+      
+      // Daily Notification
+      if (toDonate.length > 0) {
+        Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🟢Don't let good food go to waste!!",
+          body: `Check out products: ${toDonate.length <= 3 ? toDonate.join(", ") : toDonate.slice(0, 3).join(", ")+' ...'}. They are about to expire soon!! Help make a difference by donating them today!!🌟`,
+          sound: "default",
+        },
+        trigger: {
+          hour: 16,
+          minute: 35,
+          repeats: true
+        },
+      });
+      }
+
+      const dayOfWeek = date.getDay();
+      // Check if today is Saturday (6)
+      if (dayOfWeek === 0) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: "🪷It is the weekend",
+            body: `Use the weekend to donate food!📌`,
+            sound: "default",
+          },
+          trigger: {
+            hour: 16,
+            minute: 35,
+            repeats: true
+          },
+        });
+      }
+    },[date])
+
 
   return (
     <ScrollView className="p-10 h-full mt-20">
