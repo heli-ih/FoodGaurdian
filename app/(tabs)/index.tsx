@@ -22,6 +22,9 @@ import { Product } from "./_layout";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import config from "../../config";
+const apiKey = config.API_KEY;
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -31,6 +34,22 @@ Notifications.setNotificationHandler({
   }),
 });
 
+
+
+
+
+const genAI = new GoogleGenerativeAI(apiKey);
+async function generate_tip() {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+    const prompt = "you are writing a notification. write a tip related to food waste. This tip aim to make the user more informed about the food waste problem. In addition, these tips may include suggestions to make users play a more effective role in addressing the food waste problem. make the tip 30 words max"
+  
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    console.log(typeof text)
+    console.log(text)
+    return(text);
+}
 const checkExpiry = (expiryDate: string) => {
   const currentDate = new Date();
 
@@ -291,7 +310,7 @@ const HomeScreen: React.FC = () => {
   Notifications.scheduleNotificationAsync({
     content: {
       title: "🪷It is the weekend",
-      body: `Use the weekend to donate food!📌`,
+      body: `Use the weekend to donate food!📌\n${generate_tip()}`,
       sound: "default",
     },
     trigger: {
