@@ -57,7 +57,8 @@
     "react-native-svg": "15.2.0",
     "react-native-web": "~0.19.6",
     "scandit-react-native-datacapture-barcode": "^6.23.0",
-    "scandit-react-native-datacapture-core": "^6.23.0"
+    "scandit-react-native-datacapture-core": "^6.23.0",
+    "expo-location": "~17.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

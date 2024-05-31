@@ -13,18 +13,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "expo-router";
+import * as Location from "expo-location";
 import { markers } from "../markers";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import RatingStars from "../Rating";
 
-const INITIAL_REGION = {
-  latitude: 25.2068615,
-  longitude: 55.2616044,
-  latitudeDelta: 2,
-  longitudeDelta: 2,
-};
 
 interface Marker {
   latitude: number;
@@ -36,7 +32,6 @@ interface Marker {
   website: string;
   rate: number;
 }
-
 const handlePhonePress = (phone: string) => {
   Linking.openURL(`tel:${phone}`);
 };
@@ -54,12 +49,50 @@ export default function MapsScreen() {
   const mapRef = useRef();
   const [showModal, setShowModal] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<Marker>();
+  const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getLocationAsync = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission to access location was denied');
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setInitialRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 2,
+          longitudeDelta: 2
+        });
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error fetching location', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getLocationAsync();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
 
   return (
     <View style={{ flex: 1 }}>
       <MapView
         style={StyleSheet.absoluteFill}
-        initialRegion={INITIAL_REGION}
+        initialRegion={initialRegion}
         showsUserLocation
         showsMyLocationButton
         ref={mapRef}
@@ -137,3 +170,11 @@ export default function MapsScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
