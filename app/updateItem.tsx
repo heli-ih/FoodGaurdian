@@ -216,7 +216,7 @@ export default function UpdateItem() {
 
           {/* Exp Date */}
           <View>
-            <Text className="text-xl font-bold pb-1">Expiry Date</Text>
+            <Text className="text-xl font-bold pt-1">Expiry Date</Text>
             <DateTimePicker
               display="inline"
               mode="date"
@@ -266,6 +266,9 @@ export default function UpdateItem() {
               }}
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
+            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+              Required to calculate the total worth of donations.
+            </Text>
           </View>
 
           {/* Price */}
@@ -288,6 +291,9 @@ export default function UpdateItem() {
               }}
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
+            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+              Required to calculate the total worth of donations.
+            </Text>
           </View>
         </View>
 

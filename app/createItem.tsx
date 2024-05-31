@@ -358,7 +358,7 @@ export default function CreateItem() {
 
           {/* Exp Date */}
           <View>
-            <Text className="text-xl font-bold pb-1">Expiry Date</Text>
+            <Text className="text-xl font-bold pt-1">Expiry Date</Text>
             <DateTimePicker
               display="inline"
               mode="date"
@@ -403,6 +403,9 @@ export default function CreateItem() {
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
+            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+              Required to calculate the total worth of donations.
+            </Text>
           </View>
 
           {/* Price */}
@@ -420,6 +423,9 @@ export default function CreateItem() {
               }
               className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
             />
+            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+              Required to calculate the total worth of donations.
+            </Text>
           </View>
         </View>
 
@@ -428,10 +434,24 @@ export default function CreateItem() {
           <View className="flex items-start justify-center absolute right-3 top-12 py-3 px-3 rounded-xl bg-slate-50 border-2 border-neutral-300 shadow-xl">
             <TouchableOpacity
               onPress={goScan}
-              className="flex flex-row gap-4 items-center px-7 pt-2 w-full"
+              className="flex flex-row gap-4 items-center px-6 pt-2 w-full"
             >
               <Entypo name="camera" size={24} color={"#018E6F"} />
-              <Text className="text-xl font-semibold">AI</Text>
+              <Text className="text-xl font-semibold">AI Scan</Text>
+            </TouchableOpacity>
+            <Text className="text-neutral-400">
+              ______________________________
+            </Text>
+            <TouchableOpacity
+              onPress={goRawFoodScanner}
+              className="flex flex-row gap-4 items-center px-6 pt-3 w-full"
+            >
+              <MaterialCommunityIcons
+                name="food-apple"
+                size={26}
+                color="#018E6F"
+              />
+              <Text className="text-xl font-semibold -ml-1">Raw Food Scan</Text>
             </TouchableOpacity>
             <Text className="text-neutral-400">
               ______________________________
@@ -441,31 +461,17 @@ export default function CreateItem() {
               className="flex flex-row gap-4 items-center px-7 pt-3 w-full"
             >
               <FontAwesome6 name="barcode" size={22} color={"#018E6F"} />
-              <Text className="text-xl font-semibold">Barcode Scanner</Text>
+              <Text className="text-xl font-semibold">Barcode Scan</Text>
             </TouchableOpacity>
             <Text className="text-neutral-400">
               ______________________________
             </Text>
             <TouchableOpacity
               onPress={goExpiryScanner}
-              className="flex flex-row gap-4 items-center px-7 pt-3 w-full"
-            >
-              <Fontisto name="date" size={22} color="#018E6F" />
-              <Text className="text-xl font-semibold">Expiry Scanner</Text>
-            </TouchableOpacity>
-            <Text className="text-neutral-400">
-              ______________________________
-            </Text>
-            <TouchableOpacity
-              onPress={goRawFoodScanner}
               className="flex flex-row gap-4 items-center px-7 pt-3 pb-2 w-full"
             >
-              <MaterialCommunityIcons
-                name="food-apple"
-                size={26}
-                color="#018E6F"
-              />
-              <Text className="text-xl font-semibold -ml-1">Raw Food</Text>
+              <Fontisto name="date" size={22} color="#018E6F" />
+              <Text className="text-xl font-semibold">Expiry Scan</Text>
             </TouchableOpacity>
           </View>
         )}

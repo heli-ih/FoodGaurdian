@@ -17,6 +17,7 @@ export default function QRscan() {
   const [hasPermission, setHasPermission] = useState(null);
   const [productData, setProductData] = useState<Product>();
   const [scanned, setScanned] = useState(false);
+  const [focus, setFocus] = useState(true);
   const navigation = useNavigation();
 
   const goCreateItem = () => {
@@ -30,6 +31,7 @@ export default function QRscan() {
     };
     getCameraPermissions();
   }, []);
+
   let EntireResponse;
   let newProductData;
 
@@ -44,19 +46,18 @@ export default function QRscan() {
         newProductData = {
           productName: data.products[0].product_name,
           category: data.products[0].food_groups.slice(3),
-          expiryDate: data.products[0].expiration_date,
-          quantity: data.products[0].quantity,
+          expiryDate: data.products[0].expiration_date || "",
+          quantity: data.products[0].quantity || "",
+          numberOfUnits: "",
+          price: "",
         };
-
+        if (newProductData.quantity == undefined) {
+          newProductData.quantity === "";
+        }
         EntireResponse = JSON.stringify(data, null, "<br/>");
-        setProductData({
-          ...productData,
-          ...newProductData,
-        });
-        console.log("productData is ", {
-          ...productData,
-          ...newProductData,
-        });
+        setProductData(newProductData);
+
+        console.log("productData is ", newProductData);
       })
       .catch((err) => {
         throw err;
@@ -94,6 +95,13 @@ export default function QRscan() {
     );
   }
 
+  const focusCamera = () => {
+    setFocus(false);
+    setTimeout(() => {
+      setFocus(true);
+    }, 200);
+  };
+
   return (
     <View>
       <Ionicons
@@ -108,6 +116,7 @@ export default function QRscan() {
         <Text className="text-xl my-10">Scan the barcode of your product!</Text>
         <View style={styles.cameraContainer}>
           <CameraView
+            autofocus={focus}
             onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
             barcodeScannerSettings={{
               barcodeTypes: [
@@ -128,7 +137,20 @@ export default function QRscan() {
             }}
             style={styles.camera}
             focusable={true}
-          />
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={focusCamera}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "transparent",
+              }}
+            />
+          </CameraView>
         </View>
         {/* <TouchableOpacity
           className="bg-theme w-32 h-8 rounded-3xl flex items-center justify-center"

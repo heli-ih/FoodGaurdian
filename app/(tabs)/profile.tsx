@@ -77,10 +77,10 @@ export default function ProfileScreen() {
         </View>
         <View className="bg-themeDark w-screen h-full " style={styles.round}>
           <View className="flex flex-row text-center ">
-            {/* Score */}
+            {/* Points */}
             <View className="flex justify-between items-center my-7 w-[50%]">
               <Text className="font-bold text-xl text-themeLight mb-2">
-                Score
+                Points
               </Text>
 
               <Text
@@ -111,8 +111,11 @@ export default function ProfileScreen() {
                 Food Spared
               </Text>
 
-              <Text className="font-bold text-3xl text-themeLight ">
-                ${savings}
+              <Text className="font-bold text-xl pt-1 text-themeLight ">
+                AED
+                <Text className="font-bold text-3xl text-themeLight ">
+                  {savings}
+                </Text>
                 <FontAwesome6 name="coins" size={22} color="#F9E869" />
               </Text>
             </View>
@@ -175,8 +178,7 @@ export default function ProfileScreen() {
 
             {/* QR Code */}
             <View>
-              <Text className="text-2xl font-semibold mb-6">QR Code</Text>
-              <View className="flex items-center mb-20">
+              <View className="flex items-center ">
                 <View className="rounded-3xl border-2 border-neutral-300 items-center py-6 px-10">
                   <Text className="font-bold text-2xl">Active</Text>
 
@@ -199,6 +201,9 @@ export default function ProfileScreen() {
                   />
                 </View>
               </View>
+              <Text className="text-lg font-semibold mb-20 mt-7 px-12">
+                Scan your card to earn points upon every donation!
+              </Text>
             </View>
           </View>
         </View>

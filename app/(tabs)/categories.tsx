@@ -45,6 +45,7 @@ export default function MapScreen() {
         const fetchedCategories: Category[] = Object.entries(categories).map(
           ([id, cat]) => ({
             ...(cat as Category),
+            id: id,
           })
         );
         setCategories(fetchedCategories);
@@ -68,6 +69,7 @@ export default function MapScreen() {
       console.error("Error deleting category:", error);
     }
   };
+
   const handleConfirmDelete = (cat: Category) => {
     Alert.alert(
       "Category Deletion",
@@ -121,26 +123,34 @@ export default function MapScreen() {
               }}
               imageStyle={{ borderRadius: 20, opacity: cat.img ? 0.6 : 1 }}
             >
-              <View className="flex flex-row w-full items-center justify-end mt-2 pr-2">
-                {/* Edit */}
-                <MaterialCommunityIcons
-                  name="square-edit-outline"
-                  size={19}
-                  color="black"
-                  onPress={() => handleEdit(cat.id)}
-                />
-                {/* Delete */}
-                <MaterialIcons
-                  name="delete-outline"
-                  size={22}
-                  color="black"
-                  onPress={() => handleConfirmDelete(cat)}
-                />
-              </View>
+              {cat.img ? (
+                ""
+              ) : (
+                <View className="flex flex-row w-full items-center justify-end mt-2 pr-2">
+                  {/* Edit */}
+                  <MaterialCommunityIcons
+                    name="square-edit-outline"
+                    size={19}
+                    color="black"
+                    onPress={() => handleEdit(cat.id)}
+                  />
+                  {/* Delete */}
+                  <MaterialIcons
+                    name="delete-outline"
+                    size={22}
+                    color="black"
+                    onPress={() => handleConfirmDelete(cat)}
+                  />
+                </View>
+              )}
               {/* Title */}
               <View
                 key={cat.id}
-                className="flex justify-center  items-center  mb-10  mt-5 h-14"
+                className={
+                  cat.img
+                    ? "flex justify-center  items-center  mb-10 pt-5 mt-5 h-20"
+                    : "flex justify-center  items-center  mb-10  mt-5 h-11"
+                }
               >
                 <Text
                   className="text-lg font-bold"

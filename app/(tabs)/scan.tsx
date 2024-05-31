@@ -11,6 +11,7 @@ import {
   Alert,
   ScrollView,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { Camera } from "expo-camera/legacy";
 import * as FileSystem from "expo-file-system";
@@ -53,6 +54,8 @@ export default function ScanScreen() {
     category: "",
     quantity: "",
     expiryDate: "",
+    price: "",
+    numberOfUnits: "",
   });
   const cameraRef = useRef();
   const [images, setImages] = useState([]);
@@ -61,6 +64,7 @@ export default function ScanScreen() {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [hasPermission, setHasPermission] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get Categories
   useEffect(() => {
@@ -108,6 +112,7 @@ export default function ScanScreen() {
     }
   };
 
+  let newProductData;
   const getDetails = async () => {
     try {
       if (cameraRef.current) {
@@ -116,7 +121,7 @@ export default function ScanScreen() {
           model: "gemini-pro-vision",
         });
         const prompt =
-          'This is an image of raw food. What is the name of this food? what category is it (fruit or vegetable? what is the average weight of it? what is the average price of this piece in US dollars? on average, for how many days does it stay fresh? Strictly, return the answers as a JSON object. A typical response should be as follows:{name: "potato",category: "vegetable",weight: "200 g",price: 2.5,expiryDate: 3}';
+          'This is an image of raw food. What is the name of this food? what category is it (fruit or vegetable? what is the average weight of it? what is the average price of this piece in US dollars? on average, for how many days does it stay fresh? Strictly, return the answers as a JSON object. A typical response should be as follows:{name: "Potato",category: "Vegetables",weight: "200 g",price: "2.5",expiryDate: "20/07/2024", Units: "2"}';
         // const imageParts = [
         //   await fileToGenerativePart(data.uri, "image/jpeg"),
         // ];
@@ -126,15 +131,27 @@ export default function ScanScreen() {
         const result = await model.generateContent([prompt, ...imageParts]);
         const response = await result.response;
         const json = response.text();
+        let trimmedResponse = json.match(/{[^]*}/);
+        let jsonObject = JSON.parse(trimmedResponse[0]);
+        let values: string[] = Object.values(jsonObject);
 
-        console.log(imageParts.length);
+        newProductData = {
+          productName: values[0],
+          category: values[1],
+          quantity: values[2],
+          price: values[3],
+          expiryDate: values[4],
+          numberOfUnits: values[4],
+        };
+
+        setProductData(newProductData);
+        console.log("productData is ", newProductData);
+
+        navigation.navigate("createItem", {
+          newProductData: newProductData,
+        });
         setImages([]);
-        console.log("This item is", json);
-        // setProductData({
-        //   ...productData,
-        //   productName: splitedResult[0],
-        //   category: splitedResult[1],
-        // });
+        setIsLoading(false);
       }
     } catch (e) {
       console.error(e);
@@ -162,62 +179,80 @@ export default function ScanScreen() {
   }
 
   return (
-    <ScrollView>
-      <View className="p-10 h-full mt-16 ">
-        <Text className="text-3xl font-bold ">Product Scanner</Text>
-        <Text className="text-xl mt-10">
-          Start capturing details of your product!
-        </Text>
-        {/* Camera */}
-        <View className=" flex-1 h-96 rounded-3xl">
-          <Camera style={styles.camera} ref={cameraRef} autoFocus={focus}>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={focusCamera}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "transparent",
-              }}
-            />
-          </Camera>
-          <View className=" absolute items-center top-3/4  w-full">
-            <FontAwesome name="circle" size={53} color="#018E6F" />
-          </View>
-          <View className=" absolute items-center top-3/4  w-full">
-            <FontAwesome
-              name="circle"
-              size={39}
-              color="white"
-              onPress={click}
-              className="mt-2"
-            />
-          </View>
+    <ScrollView
+      className={
+        isLoading
+          ? "bg-slate-50 opacity-25 p-10 h-full mt-16 "
+          : "p-10 h-full mt-16 "
+      }
+    >
+      <Text className="text-3xl font-bold ">AI Scanner</Text>
+      <Text className="text-xl mt-10">
+        Start capturing details of your product!
+      </Text>
+
+      {/* Camera */}
+      <View className=" flex-1 h-96 rounded-3xl">
+        <Camera style={styles.camera} ref={cameraRef} autoFocus={focus}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={focusCamera}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "transparent",
+            }}
+          />
+        </Camera>
+
+        <View className=" absolute items-center top-3/4  w-full">
+          <FontAwesome name="circle" size={53} color="#018E6F" />
         </View>
-        {/* Images */}
-        <View style={styles.container}>
-          {images.map((img, index) => (
-            <View key={index} style={styles.imageContainer}>
-              <Image source={{ uri: img }} style={styles.image} />
-            </View>
-          ))}
+        <View className=" absolute items-center top-3/4  w-full">
+          <FontAwesome
+            name="circle"
+            size={39}
+            color="white"
+            onPress={click}
+            className="mt-2"
+          />
         </View>
-        {/* Details */}
-        {images.length ? (
-          <View className="items-end mb-20 mt-7">
-            <View className="bg-theme w-32 rounded-3xl">
-              <Button
-                onPress={getDetails}
-                title="Details"
-                color="white"
-              ></Button>
-            </View>
-          </View>
-        ) : null}
       </View>
+
+      {/* Images */}
+      <View style={styles.container}>
+        {images.map((img, index) => (
+          <View key={index} style={styles.imageContainer}>
+            <Image source={{ uri: img }} style={styles.image} />
+          </View>
+        ))}
+      </View>
+
+      {/* Details */}
+      {images.length ? (
+        <View className="items-end mb-20 mt-7">
+          <View className="bg-theme w-32 rounded-3xl">
+            <Button
+              onPress={() => {
+                getDetails(), setIsLoading(true);
+              }}
+              title="Details"
+              color="white"
+            ></Button>
+          </View>
+        </View>
+      ) : null}
+
+      {isLoading ? (
+        <ActivityIndicator
+          className="absolute  top-1/4 left-1/3 ml-1.5 mt-10"
+          size={100}
+          color={"#000000"}
+        />
+      ) : undefined}
     </ScrollView>
   );
 }
@@ -241,6 +276,8 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    width: "100%",
+    overflow: "hidden",
     position: "relative",
     borderRadius: 10,
     marginTop: 30,

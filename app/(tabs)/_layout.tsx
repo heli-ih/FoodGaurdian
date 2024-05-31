@@ -68,7 +68,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scan"
         options={{
-          title: "Scan",
+          title: "AI Scan",
           tabBarIcon: ({ color }) => (
             <Entypo name="camera" size={24} color={color} />
           ),
