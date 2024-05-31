@@ -18,6 +18,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category, Product } from "./(tabs)/_layout";
 import { format } from "date-fns";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function UpdateItem() {
   const [productData, setProductData] = useState<Product>();
@@ -143,174 +144,176 @@ export default function UpdateItem() {
   };
 
   return (
-    <View className="bg-white">
-      <Ionicons
-        name="arrow-back"
-        size={24}
-        color="black"
-        className="ml-9 mt-20"
-        onPress={goHome}
-      />
-      <ScrollView className="p-10 mb-32">
-        <Text className="text-3xl font-bold mb-10">Modify Item</Text>
+    <KeyboardAwareScrollView>
+      <View className="bg-white">
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="black"
+          className="ml-9 mt-20"
+          onPress={goHome}
+        />
+        <ScrollView className="p-10">
+          <Text className="text-3xl font-bold mb-10">Modify Item</Text>
 
-        {/* Form  */}
-        <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
-          {/* Name */}
-          <View>
-            <Text className="text-xl font-bold pb-1">Name</Text>
-            <TextInput
-              value={productData ? `${productData.productName}` : ""}
-              onChangeText={(text) => {
-                if (productData)
-                  handleProductDataChange({
-                    id: productData.id,
-                    productName: text,
-                    category: productData.category,
-                    quantity: productData.quantity,
-                    expiryDate: productData.expiryDate,
-                    numberOfUnits: productData.numberOfUnits,
-                    price: productData.price,
-                  });
-              }}
-              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
-            />
-          </View>
-
-          {/* Category */}
-          <View>
-            <View className="flex flex-row justify-between items-center w-full pb-1 pr-2">
-              <Text className="text-xl font-bold ">Category</Text>
+          {/* Form  */}
+          <View className="rounded-2xl bg-neutral-100 px-7 py-7 pb-10 gap-5">
+            {/* Name */}
+            <View>
+              <Text className="text-xl font-bold pb-1">Name</Text>
+              <TextInput
+                value={productData ? `${productData.productName}` : ""}
+                onChangeText={(text) => {
+                  if (productData)
+                    handleProductDataChange({
+                      id: productData.id,
+                      productName: text,
+                      category: productData.category,
+                      quantity: productData.quantity,
+                      expiryDate: productData.expiryDate,
+                      numberOfUnits: productData.numberOfUnits,
+                      price: productData.price,
+                    });
+                }}
+                className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+              />
             </View>
-            <Dropdown
-              style={[styles.dropdown, isFocus && { borderColor: "#018E6F" }]}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={categories}
-              search
-              labelField="label"
-              valueField="value"
-              placeholder={
-                !isFocus && productData ? `${productData.category}` : ""
-              }
-              searchPlaceholder="Search..."
-              value={productData ? productData.category : ""}
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => setIsFocus(false)}
-              onChange={(text) => {
-                if (productData)
-                  handleProductDataChange({
-                    id: productData.id,
-                    expiryDate: productData.expiryDate,
-                    category: text.value,
-                    productName: productData.productName,
-                    quantity: productData.quantity,
-                    numberOfUnits: productData.numberOfUnits,
-                    price: productData.price,
-                  });
 
-                setIsFocus(false);
-              }}
-            />
-          </View>
-
-          {/* Exp Date */}
-          <View>
-            <Text className="text-xl font-bold pt-1">Expiry Date</Text>
-            <DateTimePicker
-              display="inline"
-              mode="date"
-              value={date}
-              onChange={onChange}
-            />
-          </View>
-
-          {/* Quantity */}
-          <View>
-            <Text className="text-xl font-bold pb-1">Quantity</Text>
-            <TextInput
-              value={productData ? `${productData.quantity}` : ""}
-              onChangeText={(text) => {
-                if (productData)
-                  handleProductDataChange({
-                    id: productData.id,
-                    expiryDate: productData.expiryDate,
-                    category: productData.category,
-                    productName: productData.productName,
-                    quantity: text,
-                    numberOfUnits: productData.numberOfUnits,
-                    price: productData.price,
-                  });
-              }}
-              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
-            />
-          </View>
-
-          {/* Number of units */}
-          <View>
-            <Text className="text-xl font-bold pb-1">Number of units</Text>
-            <TextInput
-              value={productData ? `${productData.numberOfUnits}` : ""}
-              onChangeText={(text) => {
-                if (productData) {
-                  handleProductDataChange({
-                    id: productData.id,
-                    expiryDate: productData.expiryDate,
-                    category: productData.category,
-                    productName: productData.productName,
-                    quantity: productData.quantity,
-                    numberOfUnits: text,
-                    price: productData.price,
-                  });
+            {/* Category */}
+            <View>
+              <View className="flex flex-row justify-between items-center w-full pb-1 pr-2">
+                <Text className="text-xl font-bold ">Category</Text>
+              </View>
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: "#018E6F" }]}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={categories}
+                search
+                labelField="label"
+                valueField="value"
+                placeholder={
+                  !isFocus && productData ? `${productData.category}` : ""
                 }
-              }}
-              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
-            />
-            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
-              Required to calculate the total worth of donations.
-            </Text>
+                searchPlaceholder="Search..."
+                value={productData ? productData.category : ""}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={(text) => {
+                  if (productData)
+                    handleProductDataChange({
+                      id: productData.id,
+                      expiryDate: productData.expiryDate,
+                      category: text.value,
+                      productName: productData.productName,
+                      quantity: productData.quantity,
+                      numberOfUnits: productData.numberOfUnits,
+                      price: productData.price,
+                    });
+
+                  setIsFocus(false);
+                }}
+              />
+            </View>
+
+            {/* Exp Date */}
+            <View>
+              <Text className="text-xl font-bold pt-1">Expiry Date</Text>
+              <DateTimePicker
+                display="inline"
+                mode="date"
+                value={date}
+                onChange={onChange}
+              />
+            </View>
+
+            {/* Quantity */}
+            <View>
+              <Text className="text-xl font-bold pb-1">Quantity</Text>
+              <TextInput
+                value={productData ? `${productData.quantity}` : ""}
+                onChangeText={(text) => {
+                  if (productData)
+                    handleProductDataChange({
+                      id: productData.id,
+                      expiryDate: productData.expiryDate,
+                      category: productData.category,
+                      productName: productData.productName,
+                      quantity: text,
+                      numberOfUnits: productData.numberOfUnits,
+                      price: productData.price,
+                    });
+                }}
+                className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+              />
+            </View>
+
+            {/* Number of units */}
+            <View>
+              <Text className="text-xl font-bold pb-1">Number of units</Text>
+              <TextInput
+                value={productData ? `${productData.numberOfUnits}` : ""}
+                onChangeText={(text) => {
+                  if (productData) {
+                    handleProductDataChange({
+                      id: productData.id,
+                      expiryDate: productData.expiryDate,
+                      category: productData.category,
+                      productName: productData.productName,
+                      quantity: productData.quantity,
+                      numberOfUnits: text,
+                      price: productData.price,
+                    });
+                  }
+                }}
+                className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+              />
+              <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+                Required to calculate the total worth of donations.
+              </Text>
+            </View>
+
+            {/* Price */}
+            <View>
+              <Text className="text-xl font-bold pb-1">Price</Text>
+              <TextInput
+                value={productData ? `${productData.price}` : ""}
+                onChangeText={(text) => {
+                  if (productData) {
+                    handleProductDataChange({
+                      id: productData.id,
+                      expiryDate: productData.expiryDate,
+                      category: productData.category,
+                      productName: productData.productName,
+                      quantity: productData.quantity,
+                      numberOfUnits: productData.numberOfUnits,
+                      price: text,
+                    });
+                  }
+                }}
+                className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
+              />
+              <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
+                Required to calculate the total worth of donations.
+              </Text>
+            </View>
           </View>
 
-          {/* Price */}
-          <View>
-            <Text className="text-xl font-bold pb-1">Price</Text>
-            <TextInput
-              value={productData ? `${productData.price}` : ""}
-              onChangeText={(text) => {
-                if (productData) {
-                  handleProductDataChange({
-                    id: productData.id,
-                    expiryDate: productData.expiryDate,
-                    category: productData.category,
-                    productName: productData.productName,
-                    quantity: productData.quantity,
-                    numberOfUnits: productData.numberOfUnits,
-                    price: text,
-                  });
-                }
-              }}
-              className="rounded-xl border-2 p-2 border-neutral-300 bg-white h-10"
-            />
-            <Text className="text-[10px] font-semibold pt-1 pl-1 text-neutral-400">
-              Required to calculate the total worth of donations.
-            </Text>
+          {/* Save  */}
+          <View className="items-end mt-16">
+            <View className="bg-theme w-32 rounded-3xl">
+              <Button
+                title="Save"
+                onPress={() => {
+                  handleConfirmation();
+                }}
+                color="white"
+              ></Button>
+            </View>
           </View>
-        </View>
-
-        {/* Save  */}
-        <View className="items-end mb-32 mt-16">
-          <View className="bg-theme w-32 rounded-3xl">
-            <Button
-              title="Save"
-              onPress={() => {
-                handleConfirmation();
-              }}
-              color="white"
-            ></Button>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </KeyboardAwareScrollView>
   );
 }
 

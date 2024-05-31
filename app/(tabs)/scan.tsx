@@ -121,7 +121,7 @@ export default function ScanScreen() {
           model: "gemini-pro-vision",
         });
         const prompt =
-          'This is an image of raw food. What is the name of this food? what category is it (fruit or vegetable? what is the average weight of it? what is the average price of this piece in US dollars? on average, for how many days does it stay fresh? Strictly, return the answers as a JSON object. A typical response should be as follows:{name: "Potato",category: "Vegetables",weight: "200 g",price: "2.5",expiryDate: "20/07/2024", Units: "2"}';
+          'This is an image of packed food. What is the name of this food? what category is it (bread or milk or cheese or chicken or meats or fruits or vegetables?) what is the average weight of it? what is the average price of this piece in AED dirhams? What is the expiry date of it (format it as dd/mm/yyyy)? how many of them are in the picture? Strictly, return the answers as a JSON object. A typical response should be as follows:{name: “Lays Chips” ,category: “Snack”, weight: “45 g",price: “7”,expiryDate: "20/07/2024", numberOfUnits: “1”}';
         // const imageParts = [
         //   await fileToGenerativePart(data.uri, "image/jpeg"),
         // ];
@@ -141,7 +141,7 @@ export default function ScanScreen() {
           quantity: values[2],
           price: values[3],
           expiryDate: values[4],
-          numberOfUnits: values[4],
+          numberOfUnits: values[5],
         };
 
         setProductData(newProductData);
