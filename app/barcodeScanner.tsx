@@ -34,13 +34,14 @@ export default function QRscan() {
 
   let EntireResponse;
   let newProductData;
+  let valid = false;
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     const url = `https://world.openfoodfacts.org/api/v2/search?code=${data}&fields=product_name,food_groups,expiration_date,quantity,categories_hierarchy`;
 
     // Fetch name, category, expiry date and quantity of a product
-    fetch(url)
+     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         newProductData = {
@@ -51,6 +52,7 @@ export default function QRscan() {
           numberOfUnits: "",
           price: "",
         };
+        valid = true
         if (newProductData.quantity == undefined) {
           newProductData.quantity === "";
         }
@@ -61,27 +63,30 @@ export default function QRscan() {
       })
       .catch((err) => {
         throw err;
+      }).finally(() => {
+        Alert.alert(
+          `${valid ? "Successful" : "Data Not Found"}`,
+          `Barcode number is ${data}`,
+    
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.navigate("createItem", {
+                  newProductData: {
+                    ...productData,
+                    ...newProductData,
+                  },
+                });
+              },
+            },
+          ]
+        );
+        valid = false
       });
 
-    Alert.alert(
-      "Successful",
-      `Data is ${data}`,
-
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            navigation.navigate("createItem", {
-              newProductData: {
-                ...productData,
-                ...newProductData,
-              },
-            });
-          },
-        },
-      ]
-    );
   };
+
 
   if (hasPermission === null) {
     return <View />;
