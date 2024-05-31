@@ -24,8 +24,8 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import config from "../../config";
 const apiKey = config.API_KEY;
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+const tip = '';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -34,22 +34,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-
-
-
-
-const genAI = new GoogleGenerativeAI(apiKey);
-async function generate_tip() {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-    const prompt = "you are writing a notification. write a tip related to food waste. This tip aim to make the user more informed about the food waste problem. In addition, these tips may include suggestions to make users play a more effective role in addressing the food waste problem. make the tip 30 words max"
-  
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    console.log(typeof text)
-    console.log(text)
-    return(text);
-}
 const checkExpiry = (expiryDate: string) => {
   const currentDate = new Date();
 
@@ -94,8 +78,29 @@ const donations: Product[] = [];
 const HomeScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [savings, setSavings] = useState(0);
-  const [date, setDate] = useState(new Date());
   const navigation = useNavigation();
+  const foodWasteTips: string[] = [
+    "Plan meals ahead to buy only what you need.",
+    "Use a shopping list to avoid impulse buys.",
+    "Store food properly to extend its shelf life.",
+    "Use leftovers creatively in new meals to avoid food waste.",
+    "Donate surplus food to local charities to gain points.",
+    "Freeze excess food to preserve it longer.",
+    "Repurpose vegetable scraps for broths and stocks.",
+    "Practice portion control to minimize leftovers.",
+    "To reduce spoilage, shop for fresh produce more frequently instead of buying it in large quantities at once.",
+    "Use airtight containers to keep food fresh.",
+    "Check your pantry before shopping to avoid duplicates.",
+    "Store fruits and vegetables separately for optimal freshness.",
+    "Learn proper food storage techniques for different items.",
+    "Cook in batches and freeze portions for later use.",
+    "Track and record your food waste to identify patterns.",
+    "Share excess food with friends and neighbors.",
+    "Choose smaller portions at restaurants to avoid leftovers.",
+    "Avoid bulk buying unless you can use it all.",
+    "Incorporate 'use-it-up' meals into your routine.",
+    "Create a weekly 'clean out the fridge' meal."
+  ];
 
   // Function to clear notifications
   const clearNotifications = async () => {
@@ -283,21 +288,27 @@ const HomeScreen: React.FC = () => {
   };
 
   let toDonate: string[] = []; 
+  const get_toDonate = () => {
+    toDonate = [];
     products.map((item: Product) => {
       const { color, percentage } = checkExpiry(item.expiryDate);
       if (color == "#FF0000"){
         toDonate.push(item.productName);
       }
     });
+    return toDonate
+  }
+
 
   Notifications.scheduleNotificationAsync({
     content: {
       title: "🟢Don't let good food go to waste!!",
-      body: `Check out products: ${
-        toDonate.length <= 3
+      body: `${
+        get_toDonate().length == 0 ? "" : 'Check out products: ' + (
+          toDonate.length <= 3
           ? toDonate.join(", ")
-          : toDonate.slice(0, 3).join(", ") + " ..."
-      }. They are about to expire soon!! Help make a difference by donating them today!!🌟`,
+          : toDonate.slice(0, 3).join(", ") + " ...") + '. They are about to expire soon!! Help make a difference by donating them today!!🌟'
+      }`,
       sound: "default",
     },
     trigger: {
@@ -309,8 +320,8 @@ const HomeScreen: React.FC = () => {
   // every friday
   Notifications.scheduleNotificationAsync({
     content: {
-      title: "🪷It is the weekend",
-      body: `Use the weekend to donate food!📌\n${generate_tip()}`,
+      title: "🪷It is the weekend time",
+      body: `Seize this weekend to donate food!📌\nTip: ${foodWasteTips[Math.floor(Math.random() * foodWasteTips.length)]}`,
       sound: "default",
     },
     trigger: {
@@ -320,7 +331,6 @@ const HomeScreen: React.FC = () => {
     },
   });
 
-    
   return (
     <ScrollView className="p-10 h-full mt-20">
       {/* Title  */}
