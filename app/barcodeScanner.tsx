@@ -52,31 +52,28 @@ export default function QRscan() {
           })
         );
         setCategories(fetchedCategories);
-        console.log("categories", categories)
+        console.log("categories", categories);
       } else {
         console.log("No categories found in the database.");
       }
     });
-    
+
     return () => unsubscribe();
   }, []);
 
   async function classifier(apiCategory: string) {
-    let catg = categories.map((c) => c.label)
-    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-    const prompt = `you are a classifier. give me what category is ${apiCategory} from those catagories ${catg}. give the exact string from the list.`
-  
+    let catg = categories.map((c) => c.label);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const prompt = `you are a classifier. give me what category is ${apiCategory} from those catagories ${catg}. give the exact string from the list.`;
+
     const result = await model.generateContent(prompt);
     const response = await result.response;
     let text = response.text();
-    console.log(typeof text)
-    console.log(text)
     if (!catg.includes(text)) {
-      text = ""
+      text = "";
     }
-    return(text);
+    return text;
   }
-  
 
   let EntireResponse;
   let newProductData;
@@ -87,7 +84,7 @@ export default function QRscan() {
     const url = `https://world.openfoodfacts.org/api/v2/search?code=${data}&fields=product_name,food_groups,expiration_date,quantity,categories_hierarchy`;
 
     // Fetch name, category, expiry date and quantity of a product
-     fetch(url)
+    fetch(url)
       .then((response) => response.json())
       .then(async (data) => {
         newProductData = {
@@ -98,7 +95,7 @@ export default function QRscan() {
           numberOfUnits: "",
           price: "",
         };
-        valid = true
+        valid = true;
         if (newProductData.quantity == undefined) {
           newProductData.quantity === "";
         }
@@ -109,11 +106,12 @@ export default function QRscan() {
       })
       .catch((err) => {
         throw err;
-      }).finally(() => {
+      })
+      .finally(() => {
         Alert.alert(
           `${valid ? "Successful" : "Data Not Found"}`,
           `Barcode number is ${data}`,
-    
+
           [
             {
               text: "OK",
@@ -128,11 +126,9 @@ export default function QRscan() {
             },
           ]
         );
-        valid = false
+        valid = false;
       });
-
   };
-
 
   if (hasPermission === null) {
     return <View />;

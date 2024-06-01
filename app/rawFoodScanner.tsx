@@ -29,6 +29,7 @@ import DateTimePicker, {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./(tabs)/_layout";
 import { coolDownAsync } from "expo-web-browser";
+const genAI = new GoogleGenerativeAI(apiKey);
 
 async function fileToGenerativePart(path: string, mimeType: string) {
   try {
@@ -115,7 +116,6 @@ export default function ScanScreen() {
   const getDetails = async () => {
     try {
       if (cameraRef.current) {
-        const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
           model: "gemini-pro-vision",
         });
@@ -136,7 +136,7 @@ export default function ScanScreen() {
 
         newProductData = {
           productName: values[0],
-          category: values[1],
+          category: await classifier(values[1]),
           quantity: values[2],
           price: values[3],
           expiryDate: values[4],
@@ -178,6 +178,20 @@ export default function ScanScreen() {
         <Text>Camera permission not granted</Text>
       </View>
     );
+  }
+
+  async function classifier(apiCategory: string) {
+    let catg = categories.map((c) => c.label);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const prompt = `you are a classifier. give me what category is ${apiCategory} from those catagories ${catg}. give the exact string from the list.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    if (!catg.includes(text)) {
+      text = "";
+    }
+    return text;
   }
 
   return (
