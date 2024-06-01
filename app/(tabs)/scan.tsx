@@ -30,6 +30,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./_layout";
 import { coolDownAsync } from "expo-web-browser";
 
+
 async function fileToGenerativePart(path: string, mimeType: string) {
   try {
     const base64ImageData = await FileSystem.readAsStringAsync(path, {

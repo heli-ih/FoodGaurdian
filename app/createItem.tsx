@@ -26,6 +26,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Category } from "./(tabs)/_layout";
 import { format } from "date-fns";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+// import config from "../config";
+// const apiKey = config.API_KEY;
+// const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// const genAI = new GoogleGenerativeAI(apiKey);
 
 export default function CreateItem() {
   const [productData, setProductData] = useState({
@@ -57,17 +62,29 @@ export default function CreateItem() {
           })
         );
         setCategories(fetchedCategories);
+        console.log("categories", categories)
       } else {
         console.log("No categories found in the database.");
       }
     });
-
+    
     return () => unsubscribe();
   }, []);
-
+  
   const route = useRoute();
   const navigation = useNavigation();
-
+  // async function classifier(apiCategory: string) {
+  //   let catg = categories.map((c) => c.label)
+  //   const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+  //   const prompt = `you are a classifier. give me what category is ${apiCategory} from those catagories ${catg}. give the exact string from the list. if it is not from the list give me an "".`
+  
+  //   const result = await model.generateContent(prompt);
+  //   const response = await result.response;
+  //   const text = response.text();
+  //   console.log(typeof text)
+  //   console.log(text)
+  //   return(text);
+  // }
   useEffect(() => {
     if (route.params) {
       if (

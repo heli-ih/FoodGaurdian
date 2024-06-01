@@ -12,6 +12,13 @@ import { Camera } from "expo-camera/legacy";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "./(tabs)/_layout";
+import { db } from "./firebase/index";
+import { ref, set, push, onValue, update } from "firebase/database";
+import config from "../config";
+const apiKey = config.API_KEY;
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export default function QRscan() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -19,6 +26,7 @@ export default function QRscan() {
   const [scanned, setScanned] = useState(false);
   const [focus, setFocus] = useState(true);
   const navigation = useNavigation();
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const goCreateItem = () => {
     navigation.navigate("createItem");
@@ -32,6 +40,44 @@ export default function QRscan() {
     getCameraPermissions();
   }, []);
 
+  useEffect(() => {
+    const categoriesRef = ref(db, "categories");
+    const unsubscribe = onValue(categoriesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const categories = snapshot.val();
+        const fetchedCategories: Category[] = Object.entries(categories).map(
+          ([id, cat]) => ({
+            id,
+            ...cat,
+          })
+        );
+        setCategories(fetchedCategories);
+        console.log("categories", categories)
+      } else {
+        console.log("No categories found in the database.");
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
+  async function classifier(apiCategory: string) {
+    let catg = categories.map((c) => c.label)
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+    const prompt = `you are a classifier. give me what category is ${apiCategory} from those catagories ${catg}. give the exact string from the list.`
+  
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    console.log(typeof text)
+    console.log(text)
+    if (!catg.includes(text)) {
+      text = ""
+    }
+    return(text);
+  }
+  
+
   let EntireResponse;
   let newProductData;
   let valid = false;
@@ -43,10 +89,10 @@ export default function QRscan() {
     // Fetch name, category, expiry date and quantity of a product
      fetch(url)
       .then((response) => response.json())
-      .then((data) => {
+      .then(async (data) => {
         newProductData = {
           productName: data.products[0].product_name,
-          category: data.products[0].food_groups.slice(3),
+          category: await classifier(data.products[0].food_groups.slice(3)),
           expiryDate: data.products[0].expiration_date || "",
           quantity: data.products[0].quantity || "",
           numberOfUnits: "",
