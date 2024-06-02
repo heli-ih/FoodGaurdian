@@ -16,7 +16,7 @@ import { db } from "../firebase";
 import { Divider } from "@rneui/themed";
 
 export default function ProfileScreen() {
-  const [points, setPoints] = useState<number>(0);
+  const [points, setPoints] = useState<number>(1020);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [savings, setSavings] = useState(0);
 
